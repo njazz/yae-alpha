@@ -7,7 +7,12 @@
   <!-- Bootstrap 5 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet" />
   <style>
+    body {
+      font-family: 'Roboto', sans-serif !important;
+    }
+
     html, body {
       height: 100%;
       margin: 0;
@@ -53,21 +58,203 @@
 </head>
 <body>
 
-<div id="app" class="container-fluid d-flex flex-column p-0">
+<div id="app" class="container-fluid d-flex flex-column p-0" style="height: 100vh;">
   <div id="appname" class="w-100">
     yae: yet another environment | alpha
     <hr style="margin-bottom: 0px; margin-top: 3px">
   </div>  
-  <div id="topbar" class="w-100">
+
+  <div id="topbar" class="w-100 d-flex justify-content-between align-items-center">
     <div id="buttons" class="btn-group" role="group" aria-label="Audio controls">
       <button id="startAudio" type="button" class="btn btn-primary">Start Audio</button>
-      <button id="stopAudio" type="button" class="btn btn-danger" disabled>Stop Audio</button>
+      <button id="stopAudio" type="button" class="btn btn-danger" disabled>Stop Audio</button>      
     </div>
-    <canvas id="scope"></canvas>
+       
+    <div id="shareScopeGroup" class="d-flex align-items-center gap-2">
+      <button id="shareBtn" type="button" class="btn btn-primary">Share</button>
+      <canvas id="scope"></canvas>
+    </div>
   </div>
 
-  <div id="editor"></div>
+  <div id="editorGroup">
+    <div id="editor"></div>
+    <div id="quickstart">
+      <h3>Quick Start</h3>
+      <hr>
+This is a proof-of-concept / preview for a (not only) audio DSP language<br>
+<br>
+
+<hr>
+<h5>Minimal example</h5>
+
+Use <pre>@main</pre> to define the main audio DSP Node:<br>
+<br>
+
+white noise:<br>
+<pre>@main ~%</pre> 
+
+silence:<br>
+<pre>@main ~0</pre>
+
+440Hz sinewave<br>
+<pre>@main ~~440</pre> 
+
+<hr>
+<h5>Channel composition</h5>
+
+<br>
+<b>Sequence</b><br>
+Connects output of NODE1 to input of NODE2
+<pre>@[ NODE1 NODE2 ... ]</pre>
+
+<i>ring modulation</i>
+<pre>@main @[ ~~345 ~*~~456 ]</pre>
+
+<br>
+<b>Parallel mix</b><br>
+Runs all nodes in parallel and sums output
+<pre>@{ NODE1 NODE2 ... }</pre>
+
+<i>additive synth with attenuation</i>
+<pre>@main @[ @{ ~~234 ~~345 ~~456 ~~567} ~*0.12345 ]</pre>
+
+<br>
+<b>Average mix</b><br>
+Runs all nodes in parallel, outputs a sum of output divided by node size
+<pre>@/{ NODE1 NODE2 ... }</pre>
+
+<i>additive synth with ring modulation</i>
+<pre>@main @[ 
+@/{ ~~234 ~~345 ~~456 ~~567} 
+~*@/{ ~~135 ~~246 ~~357 ~~468} 
+~*0.25 
+]</pre>
+
+
+<hr>
+<h5>Node definitions</h5>
+
+You can define your node like that:
+<pre>@def nodeName() = ...</pre>
+and later use it:<br>
+<pre>@main = nodeName()</pre>
+
+<i>group of examples</i>
+  <pre>
+@def ringMod() = @[ ~~345 ~*~~456 ~*~%]
+@def additive() =  @[ 
+@/{ ~~0.234 ~~0.345 ~~0.456 ~~0.567} 
+~*@/{ ~~11.35 ~~12.46 ~~13.57 ~~14.68} 
+~*0.25 
+]
+
+@main @[ ringMod() ~*additive() ]
+  </pre>
+
+<hr>
+<h5>Node List</h5>  
+
+<b> oscillator: sine </b>
+<pre>~~100</pre>
+<pre>Sine(100)</pre>
+
+<b> oscillator: saw </b>
+<pre>~\100</pre>
+<pre>Saw(100)</pre>
+
+<b> oscillator: square </b>
+<pre>~|100</pre>
+<pre>Square(100)</pre>
+
+<b> oscillator: sine with input scaled to 0..10 mapped to 0..SR/2 </b>
+<pre>~~L</pre>
+
+<b> multiply by constant or other node output </b>
+<pre>~*100</pre>
+<pre>~*~~100</pre>
+
+<b> white noise generator </b>
+<pre>~%</pre>
+
+<b> zero generator </b>
+<pre>~0</pre>
+
+<b> hyperbolic tangent shaper </b>
+<pre>~~tanh</pre>
+
+<b>Bipolar signal (-1..1) to unipolar (0..1)</b>
+<pre>~-_</pre>
+
+<b>Unipolar signal (-1..1) to bipolar (0..1)</b>
+<pre>~_-</pre>
+
+<b>Less than constant (outputs 0 or 1)</b>
+<pre>Lt(0.5)</pre>
+
+<b>Greater than constant (outputs 0 or 1)</b>
+<pre>Gt(0.5)</pre>
+
+<b>ADSR envelope: using input as gate [WIP]</b>
+<pre>ADSR(0.005 0.02 0.0 0.0)</pre>
+
+
+<hr>
+
+Use "Share" button to copy/run your code (up to 1024 bytes)<br>
+<br>
+<a href="https://github.com/njazz/yae-alpha/issues">issue tracker</a>
+<br>
+<br>
+9.08.2025 / preview <br>
+
+
+      <br>  
+      <!-- Add quickstart content here -->
+    </div>
+  </div>
 </div>
+
+<style>
+  /* Make app fill full viewport height with flex column */
+  #app {
+    height: 100vh;
+  }
+
+  /* Grid layout for editor and quickstart */
+  #editorGroup {
+    display: grid;
+    grid-template-columns: 3fr 1fr; /* 75% editor, 25% quickstart */
+    gap: 10px;
+    flex-grow: 1; /* fill remaining vertical space */
+    height: auto; /* let flexbox manage height */
+    padding: 10px;
+  }
+
+  #editor {
+    background: #eee; /* demo color */
+    height: 100%;
+  }
+
+  #quickstart {
+    border: 1px solid #aaa;    /* 2px border, solid line, black color */
+    border-radius: 3px;         /* rounded corners, 8px radius */
+    height: 100%;
+    overflow-y: auto;
+    padding: 1rem;
+    text-align: left;
+    box-sizing: border-box;
+    color: #aaa
+  }
+
+  pre {
+    color: #ccf !important
+  }
+
+  /* Make sure #editorGroup expands vertically inside flex container */
+  #app > #editorGroup {
+    min-height: 0; /* allow flex children to shrink */
+  }
+</style>
 
 <!-- Scripts -->
 <script src="yae_lca_core_wasm.js"></script>
@@ -81,9 +268,8 @@
   let audioContext, scriptNode;
   let isAudioRunning = false;
 
-
-
   require(["vs/editor/editor.main"], function () {
+
     const editor = monaco.editor.create(document.getElementById('editor'), {
       value: `@def ph() = @[Saw(2.05) ~*1.0]
 @def bd() = @[
@@ -154,6 +340,7 @@ Tanh()
       theme: "vs-dark",
       automaticLayout: true,
     });
+
     function handleEditorChange() {
     if (!engine || !yModule) {
       console.warn("❌ engine / module error");
@@ -188,6 +375,81 @@ Tanh()
 
      editor.onDidChangeModelContent(handleEditorChange);
      window.handleEditorChange = handleEditorChange;
+
+     // --------------------------------------------------------------------------------
+
+// Utility for checksum: simple checksum by summing char codes mod 65535
+function checksum(str) {
+  let sum = 0;
+  for (let i = 0; i < str.length; i++) {
+    sum = (sum + str.charCodeAt(i)) % 65535;
+  }
+  return sum.toString(16).padStart(4, '0'); // hex, 4 chars
+}
+
+function encodeContent(content) {
+  const cs = checksum(content);
+  const data = cs + content;
+  return btoa(encodeURIComponent(data));
+}
+
+function decodeContent(encoded) {
+  try {
+    const decoded = decodeURIComponent(atob(encoded));
+    const cs = decoded.slice(0, 4);
+    const content = decoded.slice(4);
+    if (checksum(content) !== cs) {
+      console.warn("Checksum mismatch, data corrupted or tampered.");
+      return null;
+    }
+    return content;
+  } catch {
+    return null;
+  }
+}
+
+const MAX_SIZE = 1024; // max content length
+
+// On share button click
+document.getElementById('shareBtn').addEventListener('click', () => {
+  let text = editor.getValue();
+
+  if (text.length > MAX_SIZE) {
+    alert("Text too long to share (max " + MAX_SIZE + " chars).");
+    return;
+  }
+
+  const encoded = encodeContent(text);
+  const url = window.location.origin + window.location.pathname + "?" + encoded;
+
+  // You can either:
+  // 1) Copy to clipboard:
+  navigator.clipboard.writeText(url).then(() => {
+    alert("Share URL copied to clipboard!");
+  }, () => {
+    alert("Failed to copy URL. Here it is:\n" + url);
+  });
+
+  // 2) Or just show the URL in a prompt (uncomment if you want)
+  // prompt("Share this URL:", url);
+});
+
+// On page load, check for URL query
+window.addEventListener('load', () => {
+  const query = window.location.search.slice(1);
+  if (query) {
+    const content = decodeContent(query);
+    if (content && content.length <= MAX_SIZE) {
+      //document.getElementById('editor').value = content;
+      editor.setValue(content);
+
+    } else {
+      console.warn("Invalid or too long content in URL");
+    }
+  }
+});
+
+// --------------------------------------------------------------------------------
   });
 
 
@@ -361,6 +623,9 @@ Tanh()
       yModule._y_engine_free(engine);
     }
   });
+
+
+
 </script>
 
 </body>
