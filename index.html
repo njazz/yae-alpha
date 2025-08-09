@@ -1,15 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8" />
-  <title>yae wasm - alpha</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <!-- Bootstrap 5 CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
-  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet" />
-  <style>
-    body {
+    <meta charset="UTF-8" />
+    <title>yae wasm - alpha</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet" />
+    <style>
+        body {
       font-family: 'Roboto', sans-serif !important;
     }
 
@@ -68,101 +69,77 @@
     }
   </style>
 </head>
+
 <body>
-
-<div id="app" class="container-fluid d-flex flex-column p-0" style="height: 100vh;">
-  <div id="appname" class="w-100">
-    yae: yet another environment | alpha
-    <hr style="margin-bottom: 9px; margin-top: 3px">
-  </div>  
-
-  <div id="topbar" class="w-100 d-flex justify-content-between align-items-center">
-    <div id="buttons" class="btn-group" role="group" aria-label="Audio controls">
-      <button id="startAudio" type="button" class="btn btn-primary">Start Audio</button>
-      <button id="stopAudio" type="button" class="btn btn-danger" disabled>Stop Audio</button>      
-    </div>
-       
-    <div id="shareScopeGroup" class="d-flex align-items-center gap-2">
-      <button id="shareBtn" type="button" class="btn btn-primary">Share</button>
-      <canvas id="scope"></canvas>
-      <canvas id="sonogram"></canvas>
-    </div>
-  </div>
-
-  <hr style="margin-bottom: 3px; margin-top: 0px">
-
-  <div id="editorGroup">
-    
-    <div id="editor"></div>
-    <div id="quickstart"style="background-color: transparent;">
-
-      
-      <!-- <hr> -->
-
-      <!-- <div id="quickstart"> -->
-
-      <h3>Quick Start</h3>
-      <hr>
-This is a proof-of-concept / preview for a (not only) audio DSP language<br>
-<br>
-
-<hr>
-<h5>Minimal example</h5>
-
-Use <pre>@main</pre> to define the main audio DSP Node:<br>
-<br>
-
-white noise:<br>
-<pre>@main ~%</pre> 
-
-silence:<br>
-<pre>@main ~0</pre>
-
-440Hz sinewave<br>
-<pre>@main ~~440</pre> 
-
-<hr>
-<h5>Channel composition</h5>
-
-<br>
-<b>Sequence</b><br>
-Connects output of NODE1 to input of NODE2
-<pre>@[ NODE1 NODE2 ... ]</pre>
-
-<i>ring modulation</i>
-<pre>@main @[ ~~345 ~*~~456 ]</pre>
-
-<br>
-<b>Parallel mix</b><br>
-Runs all nodes in parallel and sums output
-<pre>@{ NODE1 NODE2 ... }</pre>
-
-<i>additive synth with attenuation</i>
-<pre>@main @[ @{ ~~234 ~~345 ~~456 ~~567} ~*0.12345 ]</pre>
-
-<br>
-<b>Average mix</b><br>
-Runs all nodes in parallel, outputs a sum of output divided by node size
-<pre>@/{ NODE1 NODE2 ... }</pre>
-
-<i>additive synth with ring modulation</i>
-<pre>@main @[ 
+    <div id="app" class="container-fluid d-flex flex-column p-0" style="height: 100vh;">
+        <div id="appname" class="w-100">
+            yae: yet another environment | alpha
+            <hr style="margin-bottom: 9px; margin-top: 3px">
+        </div>
+        <div id="topbar" class="w-100 d-flex justify-content-between align-items-center">
+            <div id="buttons" class="btn-group" role="group" aria-label="Audio controls">
+                <button id="startAudio" type="button" class="btn btn-primary">Start Audio</button>
+                <button id="stopAudio" type="button" class="btn btn-danger" disabled>Stop Audio</button>
+            </div>
+            <div id="shareScopeGroup" class="d-flex align-items-center gap-2">
+                <button id="shareBtn" type="button" class="btn btn-primary">Share</button>
+                <canvas id="scope"></canvas>
+                <canvas id="sonogram"></canvas>
+            </div>
+        </div>
+        <hr style="margin-bottom: 3px; margin-top: 0px">
+        <div id="editorGroup">
+            <div id="editor"></div>
+            <div id="quickstart" style="background-color: transparent;">
+                <!-- <hr> -->
+                <!-- <div id="quickstart"> -->
+                <h3>Quick Start</h3>
+                <hr>
+                This is a proof-of-concept / preview for a (not only) audio DSP language<br>
+                <br>
+                <hr>
+                <h5>Minimal example</h5>
+                Use
+                <pre>@main</pre> to define the main audio DSP Node:<br>
+                <br>
+                white noise:<br>
+                <pre>@main ~%</pre>
+                silence:<br>
+                <pre>@main ~0</pre>
+                440Hz sinewave<br>
+                <pre>@main ~~440</pre>
+                <hr>
+                <h5>Channel composition</h5>
+                <br>
+                <b>Sequence</b><br>
+                Connects output of NODE1 to input of NODE2
+                <pre>@[ NODE1 NODE2 ... ]</pre>
+                <i>ring modulation</i>
+                <pre>@main @[ ~~345 ~*~~456 ]</pre>
+                <br>
+                <b>Parallel mix</b><br>
+                Runs all nodes in parallel and sums output
+                <pre>@{ NODE1 NODE2 ... }</pre>
+                <i>additive synth with attenuation</i>
+                <pre>@main @[ @{ ~~234 ~~345 ~~456 ~~567} ~*0.12345 ]</pre>
+                <br>
+                <b>Average mix</b><br>
+                Runs all nodes in parallel, outputs a sum of output divided by node size
+                <pre>@/{ NODE1 NODE2 ... }</pre>
+                <i>additive synth with ring modulation</i>
+                <pre>@main @[ 
 @/{ ~~234 ~~345 ~~456 ~~567} 
 ~*@/{ ~~135 ~~246 ~~357 ~~468} 
 ~*0.25 
 ]</pre>
-
-
-<hr>
-<h5>Node definitions</h5>
-
-You can define your node like that:
-<pre>@def nodeName() = ...</pre>
-and later use it:<br>
-<pre>@main = nodeName()</pre>
-
-<i>group of examples</i>
-  <pre>
+                <hr>
+                <h5>Node definitions</h5>
+                You can define your node like that:
+                <pre>@def nodeName() = ...</pre>
+                and later use it:<br>
+                <pre>@main = nodeName()</pre>
+                <i>group of examples</i>
+                <pre>
 @def ringMod() = @[ ~~345 ~*~~456 ~*~%]
 @def additive() =  @[ 
 @/{ ~~0.234 ~~0.345 ~~0.456 ~~0.567} 
@@ -172,144 +149,133 @@ and later use it:<br>
 
 @main @[ ringMod() ~*additive() ]
   </pre>
-
-<hr>
-<h5>Node List</h5>  
-
-<b> oscillator: sine </b>
-<pre>~~100</pre>
-<pre>Sine(100)</pre>
-
-<b> oscillator: saw </b>
-<pre>~\100</pre>
-<pre>Saw(100)</pre>
-
-<b> oscillator: square </b>
-<pre>~|100</pre>
-<pre>Square(100)</pre>
-
-<b> oscillator: sine with input scaled to 0..10 mapped to 0..SR/2 </b>
-<pre>~~L</pre>
-
-<b> multiply by constant or other node output </b>
-<pre>~*100</pre>
-<pre>~*~~100</pre>
-
-<b> white noise generator </b>
-<pre>~%</pre>
-
-<b> zero generator </b>
-<pre>~0</pre>
-
-<b> hyperbolic tangent shaper </b>
-<pre>~~tanh</pre>
-
-<b>Bipolar signal (-1..1) to unipolar (0..1)</b>
-<pre>~-_</pre>
-
-<b>Unipolar signal (-1..1) to bipolar (0..1)</b>
-<pre>~_-</pre>
-
-<b>Less than constant (outputs 0 or 1)</b>
-<pre>Lt(0.5)</pre>
-
-<b>Greater than constant (outputs 0 or 1)</b>
-<pre>Gt(0.5)</pre>
-
-<b>ADSR envelope: using input as gate [WIP]</b>
-<pre>ADSR(0.005 0.02 0.0 0.0)</pre>
-
-
-<hr>
-
-Use "Share" button to copy/run your code (up to 1024 bytes)<br>
-<br>
-<a href="https://github.com/njazz/yae-alpha/issues">issue tracker</a>
-<br>
-<br>
-9.08.2025 / preview <br>
-
-
-      <br>  
-      <!-- Add quickstart content here -->
-    <!-- </div> -->
-
+                <hr>
+                <h5>Node List</h5>
+                <b> oscillator: sine </b>
+                <pre>~~100</pre>
+                <pre>Sine(100)</pre>
+                <b> oscillator: saw </b>
+                <pre>~\100</pre>
+                <pre>Saw(100)</pre>
+                <b> oscillator: square </b>
+                <pre>~|100</pre>
+                <pre>Square(100)</pre>
+                <b> oscillator: sine with input scaled to 0..10 mapped to 0..SR/2 </b>
+                <pre>~~L</pre>
+                <b> multiply by constant or other node output </b>
+                <pre>~*100</pre>
+                <pre>~*~~100</pre>
+                <b> white noise generator </b>
+                <pre>~%</pre>
+                <b> zero generator </b>
+                <pre>~0</pre>
+                <b> hyperbolic tangent shaper </b>
+                <pre>~~tanh</pre>
+                <b>Bipolar signal (-1..1) to unipolar (0..1)</b>
+                <pre>~-_</pre>
+                <b>Unipolar signal (-1..1) to bipolar (0..1)</b>
+                <pre>~_-</pre>
+                <b>Less than constant (outputs 0 or 1)</b>
+                <pre>Lt(0.5)</pre>
+                <b>Greater than constant (outputs 0 or 1)</b>
+                <pre>Gt(0.5)</pre>
+                <b>ADSR envelope: using input as gate [WIP]</b>
+                <pre>ADSR(0.005 0.02 0.0 0.0)</pre>
+                <hr>
+                Use "Share" button to copy/run your code (up to 1024 bytes)<br>
+                <br>
+                <a href="https://github.com/njazz/yae-alpha/issues">issue tracker</a>
+                <br>
+                <br>
+                9.08.2025 / preview <br>
+                <br>
+                <!-- Add quickstart content here -->
+                <!-- </div> -->
+            </div>
+        </div>
     </div>
-  </div>
-</div>
+    <style>
+    /* Make app fill full viewport height with flex column */
+    #app {
+        height: 100vh;
+    }
 
-<style>
-  /* Make app fill full viewport height with flex column */
-  #app {
-    height: 100vh;
-  }
+    /* Grid layout for editor and quickstart */
+    #editorGroup {
+        display: grid;
+        grid-template-columns: 3fr 1fr;
+        /* 75% editor, 25% quickstart */
+        gap: 10px;
+        flex-grow: 1;
+        /* fill remaining vertical space */
+        height: auto;
+        /* let flexbox manage height */
+        padding: 10px;
+    }
 
-  /* Grid layout for editor and quickstart */
-  #editorGroup {
-    display: grid;
-    grid-template-columns: 3fr 1fr; /* 75% editor, 25% quickstart */
-    gap: 10px;
-    flex-grow: 1; /* fill remaining vertical space */
-    height: auto; /* let flexbox manage height */
-    padding: 10px;
-  }
+    #editor {
+        border: 1px solid #aaa;
+        /* 2px border, solid line, black color */
+        border-radius: 3px;
+        /* rounded corners, 8px radius */
+        background: #eee;
+        /* demo color */
+        height: 100%;
+    }
 
-  #editor {
-     border: 1px solid #aaa;    /* 2px border, solid line, black color */
-    border-radius: 3px;         /* rounded corners, 8px radius */
-    background: #eee; /* demo color */
-    height: 100%;
-  }
+    #sidebar {
+        border: 1px solid #aaa;
+        /* 2px border, solid line, black color */
+        border-radius: 3px;
+        /* rounded corners, 8px radius */
+        height: 100%;
+        overflow-y: auto;
+        padding: 1rem;
+        /*text-align: left;*/
+        box-sizing: border-box;
+        /*color: #aaa*/
+    }
 
-  #sidebar {
-    border: 1px solid #aaa;    /* 2px border, solid line, black color */
-    border-radius: 3px;         /* rounded corners, 8px radius */
-    height: 100%;
-    overflow-y: auto;
-    padding: 1rem;
-    /*text-align: left;*/
-    box-sizing: border-box;
-    /*color: #aaa*/
-  }
+    #quickstart {
+        border: 1px solid #aaa;
+        /* 2px border, solid line, black color */
+        border-radius: 3px;
+        /* rounded corners, 8px radius */
+        height: 100%;
+        overflow-y: auto;
+        padding: 1rem;
+        text-align: left;
+        box-sizing: border-box;
+        color: #aaa
+    }
 
-  #quickstart {
-    border: 1px solid #aaa;    /* 2px border, solid line, black color */
-    border-radius: 3px;         /* rounded corners, 8px radius */
-    height: 100%;
-    overflow-y: auto;
-    padding: 1rem;
-    text-align: left;
-    box-sizing: border-box;
-    color: #aaa
-  }
+    pre {
+        color: #ccf !important
+    }
 
-  pre {
-    color: #ccf !important
-  }
+    /* Make sure #editorGroup expands vertically inside flex container */
+    #app>#editorGroup {
+        min-height: 0;
+        /* allow flex children to shrink */
+    }
+    </style>
+    <!-- Scripts -->
+    <script src="yae_lca_core_wasm.js"></script>
+    <script src="https://unpkg.com/monaco-editor@0.45.0/min/vs/loader.js"></script>
+    <script>
+    "use strict";
 
-  /* Make sure #editorGroup expands vertically inside flex container */
-  #app > #editorGroup {
-    min-height: 0; /* allow flex children to shrink */
-  }
-</style>
+    // Initialize Monaco Editor
+    require.config({ paths: { vs: 'https://unpkg.com/monaco-editor@0.45.0/min/vs' } });
+    let yModule, engine, bufferIn, bufferOut;
+    let audioContext, scriptNode;
+    let analyser, source, drawId;
+    let isAudioRunning = false;
 
-<!-- Scripts -->
-<script src="yae_lca_core_wasm.js"></script>
-<script src="https://unpkg.com/monaco-editor@0.45.0/min/vs/loader.js"></script>
-<script>
-  "use strict";
+    require(["vs/editor/editor.main"], function() {
 
-  // Initialize Monaco Editor
-  require.config({ paths: { vs: 'https://unpkg.com/monaco-editor@0.45.0/min/vs' }});
-  let yModule, engine, bufferIn, bufferOut;
-  let audioContext, scriptNode;
-  let analyser,source,drawId;
-  let isAudioRunning = false;
-
-  require(["vs/editor/editor.main"], function () {
-
-    const editor = monaco.editor.create(document.getElementById('editor'), {
-      value: `@def ph() = @[Saw(2.05) ~*1.0]
+        const editor = monaco.editor.create(document.getElementById('editor'), {
+            value: `@def ph() = @[Saw(2.05) ~*1.0]
 @def bd() = @[
 
 ~+/{@[
@@ -374,374 +340,368 @@ Tanh()
 
 
 `,
-      language: "cpp",
-      theme: "vs-dark",
-      automaticLayout: true,
-    });
+            language: "cpp",
+            theme: "vs-dark",
+            automaticLayout: true,
+        });
 
-    function handleEditorChange() {
-    if (!engine || !yModule) {
-      console.warn("❌ engine / module error");
-      return;
-    }
-    const code = editor.getValue();
+        function handleEditorChange() {
+            if (!engine || !yModule) {
+                console.warn("❌ engine / module error");
+                return;
+            }
+            const code = editor.getValue();
 
-    const ptr = yModule.allocateUTF8(code);
-    const builder = yModule._y_engine_try_parse_to_builder(engine, ptr);
-    yModule._free(ptr);
+            const ptr = yModule.allocateUTF8(code);
+            const builder = yModule._y_engine_try_parse_to_builder(engine, ptr);
+            yModule._free(ptr);
 
-    const hasValue = yModule._y_optional_dsp_build_fn_has_value(builder);
+            const hasValue = yModule._y_optional_dsp_build_fn_has_value(builder);
 
-    if (hasValue === true) {
-      console.log("✅ DSP parsed successfully");
-      yModule._y_engine_dsp_set(engine, builder);
+            if (hasValue === true) {
+                console.log("✅ DSP parsed successfully");
+                yModule._y_engine_dsp_set(engine, builder);
 
-      const sampleRate = 48000;
-      const blockSize = 512;
-      const channels = 1;
-      yModule._y_engine_dsp_node_prepare(engine, channels, blockSize, sampleRate);
-      
-      yModule._y_optional_dsp_build_fn_free(builder);
-    } else {
-      const errPtr = yModule._y_engine_get_new_last_error(engine);
-      const err = yModule.UTF8ToString(errPtr);
-      console.warn("❌ DSP error:", err);
+                const sampleRate = 48000;
+                const blockSize = 512;
+                const channels = 1;
+                yModule._y_engine_dsp_node_prepare(engine, channels, blockSize, sampleRate);
 
-      yModule._y_optional_dsp_build_fn_free(builder);
-    }
-  }
+                yModule._y_optional_dsp_build_fn_free(builder);
+            } else {
+                const errPtr = yModule._y_engine_get_new_last_error(engine);
+                const err = yModule.UTF8ToString(errPtr);
+                console.warn("❌ DSP error:", err);
 
-     editor.onDidChangeModelContent(handleEditorChange);
-     window.handleEditorChange = handleEditorChange;
-
-     // --------------------------------------------------------------------------------
-
-// Utility for checksum: simple checksum by summing char codes mod 65535
-function checksum(str) {
-  let sum = 0;
-  for (let i = 0; i < str.length; i++) {
-    sum = (sum + str.charCodeAt(i)) % 65535;
-  }
-  return sum.toString(16).padStart(4, '0'); // hex, 4 chars
-}
-
-function encodeContent(content) {
-  const cs = checksum(content);
-  const data = cs + content;
-  return btoa(encodeURIComponent(data));
-}
-
-function decodeContent(encoded) {
-  try {
-    const decoded = decodeURIComponent(atob(encoded));
-    const cs = decoded.slice(0, 4);
-    const content = decoded.slice(4);
-    if (checksum(content) !== cs) {
-      console.warn("Checksum mismatch, data corrupted or tampered.");
-      return null;
-    }
-    return content;
-  } catch {
-    return null;
-  }
-}
-
-const MAX_SIZE = 1024; // max content length
-
-// On share button click
-document.getElementById('shareBtn').addEventListener('click', () => {
-  let text = editor.getValue();
-
-  if (text.length > MAX_SIZE) {
-    alert("Text too long to share (max " + MAX_SIZE + " chars).");
-    return;
-  }
-
-  const encoded = encodeContent(text);
-  const url = window.location.origin + window.location.pathname + "?" + encoded;
-
-  // You can either:
-  // 1) Copy to clipboard:
-  navigator.clipboard.writeText(url).then(() => {
-    alert("Share URL copied to clipboard!");
-  }, () => {
-    alert("Failed to copy URL. Here it is:\n" + url);
-  });
-
-  // 2) Or just show the URL in a prompt (uncomment if you want)
-  // prompt("Share this URL:", url);
-});
-
-// On page load, check for URL query
-window.addEventListener('load', () => {
-  const query = window.location.search.slice(1);
-  if (query) {
-    const content = decodeContent(query);
-    if (content && content.length <= MAX_SIZE) {
-      //document.getElementById('editor').value = content;
-      editor.setValue(content);
-
-    } else {
-      console.warn("Invalid or too long content in URL");
-    }
-  }
-});
-
-
-
-// --------------------------------------------------------------------------------
-  });
-
-
-
-  function startAudio() {
-    if (isAudioRunning) return;
-    isAudioRunning = true;
-
-    audioContext = new AudioContext();
-    console.log("AudioContext started:", audioContext);
-
-    // Load WASM Module
-    Module().then(mod => {
-      yModule = mod;
-      engine = yModule._y_engine_new();
-
-      console.log(Object.keys(yModule).filter(k => k.startsWith('_')));
-
-      const sampleRate = 48000;
-      const blockSize = 512;
-      const channels = 1;
-
-      yModule._y_engine_dsp_node_prepare(engine, channels, blockSize, sampleRate);
-
-      bufferIn = yModule._malloc(blockSize * 4);
-      bufferOut = yModule._malloc(blockSize * 4);
-
-      scriptNode = audioContext.createScriptProcessor(blockSize, 1, 1);
-
-      scriptNode.onaudioprocess = function (e) {
-        const output = e.outputBuffer.getChannelData(0);
-
-        yModule._y_engine_dsp_node_process(engine, bufferIn, bufferOut);
-
-        const outputView = new Float32Array(yModule.HEAPF32.buffer, bufferOut, blockSize);
-        
-        for (let i = 0; i < blockSize; i++) {
-          output[i] = outputView[i];
+                yModule._y_optional_dsp_build_fn_free(builder);
+            }
         }
 
-        drawScope(output);
-      };
+        editor.onDidChangeModelContent(handleEditorChange);
+        window.handleEditorChange = handleEditorChange;
 
-      scriptNode.connect(audioContext.destination);
+        // --------------------------------------------------------------------------------
 
-      document.getElementById('startAudio').disabled = true;
-      document.getElementById('stopAudio').disabled = false;
+        // Utility for checksum: simple checksum by summing char codes mod 65535
+        function checksum(str) {
+            let sum = 0;
+            for (let i = 0; i < str.length; i++) {
+                sum = (sum + str.charCodeAt(i)) % 65535;
+            }
+            return sum.toString(16).padStart(4, '0'); // hex, 4 chars
+        }
 
-      console.log("🔊 Audio running...");
+        function encodeContent(content) {
+            const cs = checksum(content);
+            const data = cs + content;
+            return btoa(encodeURIComponent(data));
+        }
 
-      if (window.handleEditorChange) {
-        window.handleEditorChange();
-      }
+        function decodeContent(encoded) {
+            try {
+                const decoded = decodeURIComponent(atob(encoded));
+                const cs = decoded.slice(0, 4);
+                const content = decoded.slice(4);
+                if (checksum(content) !== cs) {
+                    console.warn("Checksum mismatch, data corrupted or tampered.");
+                    return null;
+                }
+                return content;
+            } catch {
+                return null;
+            }
+        }
+
+        const MAX_SIZE = 1024; // max content length
+
+        // On share button click
+        document.getElementById('shareBtn').addEventListener('click', () => {
+            let text = editor.getValue();
+
+            if (text.length > MAX_SIZE) {
+                alert("Text too long to share (max " + MAX_SIZE + " chars).");
+                return;
+            }
+
+            const encoded = encodeContent(text);
+            const url = window.location.origin + window.location.pathname + "?" + encoded;
+
+            // You can either:
+            // 1) Copy to clipboard:
+            navigator.clipboard.writeText(url).then(() => {
+                alert("Share URL copied to clipboard!");
+            }, () => {
+                alert("Failed to copy URL. Here it is:\n" + url);
+            });
+
+            // 2) Or just show the URL in a prompt (uncomment if you want)
+            // prompt("Share this URL:", url);
+        });
+
+        // On page load, check for URL query
+        window.addEventListener('load', () => {
+            const query = window.location.search.slice(1);
+            if (query) {
+                const content = decodeContent(query);
+                if (content && content.length <= MAX_SIZE) {
+                    //document.getElementById('editor').value = content;
+                    editor.setValue(content);
+
+                } else {
+                    console.warn("Invalid or too long content in URL");
+                }
+            }
+        });
 
 
-// sonogram
-(async function() {
-  const canvas = document.getElementById("sonogram");
-  const ctx = canvas.getContext("2d");
 
-  const audioCtx = audioContext;//new (window.AudioContext || window.webkitAudioContext)();
-
-  // --- Replace this with yae-alpha's output node ---
-  // Example: microphone as input for testing
-  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-  source = audioCtx.createMediaStreamSource(stream);
-
-  // Create analyser
-  analyser = audioCtx.createAnalyser();
-  analyser.fftSize = 512; // lower = faster scrolling, less freq resolution
-  const freqData = new Uint8Array(analyser.frequencyBinCount);
-
-  // Connect graph: source -> analyser -> destination
-  // source.connect(analyser);
-  scriptNode.connect(analyser);
-  // You may also connect analyser to audioCtx.destination if you want monitoring
-  // analyser.connect(audioCtx.destination);
-
-  let x = 0;
-
-  if (drawId) {
-    cancelAnimationFrame(drawId); // stop old loop
-  }
-
-  function heatmapColorForValue(value) {
-  const t = value / 255; // normalize
-  if (t <= 0) return 'rgb(0,0,0)'; // silence = black
-  const r = Math.min(255, 255 * t * 2);             // ramp up red fast
-  const g = t > 0.5 ? Math.min(255, 255 * (t - 0.5) * 2) : 0; // add green later
-  const b = 0.5*r; // no blue in heatmap
-  return `rgb(${r},${g},${b})`;
-}
-
-
-  function draw() {
-    drawId = requestAnimationFrame(draw);
-
-    analyser.getByteFrequencyData(freqData);
-
-    // Shift old image left by 1 pixel
-    const imgData = ctx.getImageData(1, 0, canvas.width - 1, canvas.height);
-    ctx.putImageData(imgData, 0, 0);
-
-    // Draw new column at the right
-    for (let y = 0; y < canvas.height; y++) {
-      const value = freqData[Math.floor(y * freqData.length / canvas.height)];
-      // const hue = 240 - (value / 255) * 240; // blue->red
-      // ctx.fillStyle = `hsl(${hue},100%,50%)`;
-      ctx.fillStyle = heatmapColorForValue(value);
-      ctx.fillRect(canvas.width - 1, canvas.height - y, 1, 1);
-    }
-  }
-
-  draw();
-})();
-
+        // --------------------------------------------------------------------------------
     });
-  }
 
-  function stopAudio() {
-    if (!isAudioRunning) return;
-    if (!yModule) return;
 
-    isAudioRunning = false;
 
-    if (analyser){
-      analyser.disconnect();
-      analyser = null;
-      source=null;
+    function startAudio() {
+        if (isAudioRunning) return;
+        isAudioRunning = true;
+
+        audioContext = new AudioContext();
+        console.log("AudioContext started:", audioContext);
+
+        // Load WASM Module
+        Module().then(mod => {
+            yModule = mod;
+            engine = yModule._y_engine_new();
+
+            console.log(Object.keys(yModule).filter(k => k.startsWith('_')));
+
+            const sampleRate = 48000;
+            const blockSize = 512;
+            const channels = 1;
+
+            yModule._y_engine_dsp_node_prepare(engine, channels, blockSize, sampleRate);
+
+            bufferIn = yModule._malloc(blockSize * 4);
+            bufferOut = yModule._malloc(blockSize * 4);
+
+            scriptNode = audioContext.createScriptProcessor(blockSize, 1, 1);
+
+            scriptNode.onaudioprocess = function(e) {
+                const output = e.outputBuffer.getChannelData(0);
+
+                yModule._y_engine_dsp_node_process(engine, bufferIn, bufferOut);
+
+                const outputView = new Float32Array(yModule.HEAPF32.buffer, bufferOut, blockSize);
+
+                for (let i = 0; i < blockSize; i++) {
+                    output[i] = outputView[i];
+                }
+
+                drawScope(output);
+            };
+
+            scriptNode.connect(audioContext.destination);
+
+            document.getElementById('startAudio').disabled = true;
+            document.getElementById('stopAudio').disabled = false;
+
+            console.log("🔊 Audio running...");
+
+            if (window.handleEditorChange) {
+                window.handleEditorChange();
+            }
+
+
+            // sonogram
+            (async function() {
+                const canvas = document.getElementById("sonogram");
+                const ctx = canvas.getContext("2d");
+
+                const audioCtx = audioContext; //new (window.AudioContext || window.webkitAudioContext)();
+
+                // --- Replace this with yae-alpha's output node ---
+                // Example: microphone as input for testing
+                // const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                // source = audioCtx.createMediaStreamSource(stream);
+
+                // Create analyser
+                analyser = audioCtx.createAnalyser();
+                analyser.fftSize = 512; // lower = faster scrolling, less freq resolution
+                const freqData = new Uint8Array(analyser.frequencyBinCount);
+
+                // Connect graph: source -> analyser -> destination
+                // source.connect(analyser);
+                scriptNode.connect(analyser);
+                // You may also connect analyser to audioCtx.destination if you want monitoring
+                // analyser.connect(audioCtx.destination);
+
+                let x = 0;
+
+                if (drawId) {
+                    cancelAnimationFrame(drawId); // stop old loop
+                }
+
+                function heatmapColorForValue(value) {
+                    const t = value / 255; // normalize
+                    if (t <= 0) return 'rgb(0,0,0)'; // silence = black
+                    const r = Math.min(255, 255 * t * 2); // ramp up red fast
+                    const g = t > 0.5 ? Math.min(255, 255 * (t - 0.5) * 2) : 0; // add green later
+                    const b = 0.5 * r; // no blue in heatmap
+                    return `rgb(${r},${g},${b})`;
+                }
+
+
+                function draw() {
+                    drawId = requestAnimationFrame(draw);
+
+                    analyser.getByteFrequencyData(freqData);
+
+                    // Shift old image left by 1 pixel
+                    const imgData = ctx.getImageData(1, 0, canvas.width - 1, canvas.height);
+                    ctx.putImageData(imgData, 0, 0);
+
+                    // Draw new column at the right
+                    for (let y = 0; y < canvas.height; y++) {
+                        const value = freqData[Math.floor(y * freqData.length / canvas.height)];
+                        // const hue = 240 - (value / 255) * 240; // blue->red
+                        // ctx.fillStyle = `hsl(${hue},100%,50%)`;
+                        ctx.fillStyle = heatmapColorForValue(value);
+                        ctx.fillRect(canvas.width - 1, canvas.height - y, 1, 1);
+                    }
+                }
+
+                draw();
+            })();
+
+        });
     }
 
-    if (scriptNode) {
-      scriptNode.disconnect();
-      scriptNode = null;
+    function stopAudio() {
+        if (!isAudioRunning) return;
+        if (!yModule) return;
+
+        isAudioRunning = false;
+
+        if (analyser) {
+            analyser.disconnect();
+            analyser = null;
+            source = null;
+        }
+
+        if (scriptNode) {
+            scriptNode.disconnect();
+            scriptNode = null;
+        }
+
+        if (audioContext) {
+            audioContext.close();
+            audioContext = null;
+        }
+
+
+
+        if (engine && yModule) {
+            if (bufferIn) {
+                yModule._free(bufferIn);
+                bufferIn = null;
+            }
+            if (bufferOut) {
+                yModule._free(bufferOut);
+                bufferOut = null;
+            }
+
+            yModule._y_engine_free(engine);
+            engine = null;
+            yModule = null;
+        }
+
+        document.getElementById('startAudio').disabled = false;
+        document.getElementById('stopAudio').disabled = true;
+
+        clearScope();
+        console.log("🛑 Audio stopped.");
     }
 
-    if (audioContext) {
-      audioContext.close();
-      audioContext = null;
+    document.getElementById("startAudio").addEventListener("click", startAudio);
+    document.getElementById("stopAudio").addEventListener("click", stopAudio);
+
+    // Simple oscilloscope drawing
+    const scopeCanvas = document.getElementById('scope');
+    const scopeCtx = scopeCanvas.getContext('2d');
+
+    // Adjust canvas size for devicePixelRatio
+    function resizeScope() {
+        const width = scopeCanvas.clientWidth;
+        const height = scopeCanvas.clientHeight;
+        const dpr = window.devicePixelRatio || 1;
+
+        scopeCanvas.width = width * dpr;
+        scopeCanvas.height = height * dpr;
+        scopeCtx.scale(dpr, dpr);
+    }
+    resizeScope();
+    window.addEventListener('resize', resizeScope);
+
+    // function drawScope(buffer) {
+    //   const width = scopeCanvas.clientWidth;
+    //   const height = scopeCanvas.clientHeight;
+
+    //   scopeCtx.clearRect(0, 0, width, height);
+    //   scopeCtx.strokeStyle = '#0f0';
+    //   scopeCtx.lineWidth = 2;
+    //   scopeCtx.beginPath();
+
+    //   const step = Math.ceil(buffer.length / width);
+    //   for (let i = 0; i < width; i++) {
+    //     const sample = buffer[i * step] || 0;
+    //     const y = (1 - (sample + 1) / 2) * height; // normalize -1..1 to canvas Y
+    //     if (i === 0) {
+    //       scopeCtx.moveTo(i, y);
+    //     } else {
+    //       scopeCtx.lineTo(i, y);
+    //     }
+    //   }
+    //   scopeCtx.stroke();
+    // }
+
+    function drawScope(buffer) {
+        const width = scopeCanvas.clientWidth;
+        const height = scopeCanvas.clientHeight;
+
+        scopeCtx.clearRect(0, 0, width, height);
+        scopeCtx.strokeStyle = '#0f0';
+        scopeCtx.lineWidth = 2;
+        scopeCtx.beginPath();
+
+        const step = buffer.length / width;
+
+        for (let i = 0; i < width; i++) {
+            const idx = i * step;
+            // simple floor to get sample index
+            const sample = buffer[Math.floor(idx)] || 0;
+            const y = (1 - (sample + 1) / 2) * height; // normalize -1..1 to canvas Y
+            if (i === 0) {
+                scopeCtx.moveTo(i, y);
+            } else {
+                scopeCtx.lineTo(i, y);
+            }
+        }
+        scopeCtx.stroke();
     }
 
-
-
-    if (engine && yModule) {
-      if (bufferIn) {
-      yModule._free(bufferIn);
-      bufferIn = null;
-    }
-    if (bufferOut) {
-      yModule._free(bufferOut);
-      bufferOut = null;
+    function clearScope() {
+        const width = scopeCanvas.clientWidth;
+        const height = scopeCanvas.clientHeight;
+        scopeCtx.clearRect(0, 0, width, height);
     }
 
-      yModule._y_engine_free(engine);
-      engine = null;
-      yModule = null;
-    }
-
-    document.getElementById('startAudio').disabled = false;
-    document.getElementById('stopAudio').disabled = true;
-
-    clearScope();
-    console.log("🛑 Audio stopped.");
-  }
-
-  document.getElementById("startAudio").addEventListener("click", startAudio);
-  document.getElementById("stopAudio").addEventListener("click", stopAudio);
-
-  // Simple oscilloscope drawing
-  const scopeCanvas = document.getElementById('scope');
-  const scopeCtx = scopeCanvas.getContext('2d');
-
-  // Adjust canvas size for devicePixelRatio
-  function resizeScope() {
-    const width = scopeCanvas.clientWidth;
-    const height = scopeCanvas.clientHeight;
-    const dpr = window.devicePixelRatio || 1;
-
-    scopeCanvas.width = width * dpr;
-    scopeCanvas.height = height * dpr;
-    scopeCtx.scale(dpr, dpr);
-  }
-  resizeScope();
-  window.addEventListener('resize', resizeScope);
-
-  // function drawScope(buffer) {
-  //   const width = scopeCanvas.clientWidth;
-  //   const height = scopeCanvas.clientHeight;
-
-  //   scopeCtx.clearRect(0, 0, width, height);
-  //   scopeCtx.strokeStyle = '#0f0';
-  //   scopeCtx.lineWidth = 2;
-  //   scopeCtx.beginPath();
-
-  //   const step = Math.ceil(buffer.length / width);
-  //   for (let i = 0; i < width; i++) {
-  //     const sample = buffer[i * step] || 0;
-  //     const y = (1 - (sample + 1) / 2) * height; // normalize -1..1 to canvas Y
-  //     if (i === 0) {
-  //       scopeCtx.moveTo(i, y);
-  //     } else {
-  //       scopeCtx.lineTo(i, y);
-  //     }
-  //   }
-  //   scopeCtx.stroke();
-  // }
-
-  function drawScope(buffer) {
-  const width = scopeCanvas.clientWidth;
-  const height = scopeCanvas.clientHeight;
-
-  scopeCtx.clearRect(0, 0, width, height);
-  scopeCtx.strokeStyle = '#0f0';
-  scopeCtx.lineWidth = 2;
-  scopeCtx.beginPath();
-
-  const step = buffer.length / width;
-
-  for (let i = 0; i < width; i++) {
-    const idx = i * step;
-    // simple floor to get sample index
-    const sample = buffer[Math.floor(idx)] || 0;
-    const y = (1 - (sample + 1) / 2) * height; // normalize -1..1 to canvas Y
-    if (i === 0) {
-      scopeCtx.moveTo(i, y);
-    } else {
-      scopeCtx.lineTo(i, y);
-    }
-  }
-  scopeCtx.stroke();
-}
-
-  function clearScope() {
-    const width = scopeCanvas.clientWidth;
-    const height = scopeCanvas.clientHeight;
-    scopeCtx.clearRect(0, 0, width, height);
-  }
-
-  window.addEventListener("beforeunload", () => {
-    if (engine && yModule) {
-      yModule._y_engine_free(engine);
-    }
-  });
-
-
-
-</script>
-
-<script>
-
-</script>
-
-
+    window.addEventListener("beforeunload", () => {
+        if (engine && yModule) {
+            yModule._y_engine_free(engine);
+        }
+    });
+    </script>
+    <script>
+    </script>
 </body>
+
 </html>
