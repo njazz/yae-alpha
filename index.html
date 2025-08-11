@@ -84,6 +84,16 @@
 ~*@/{ ~~135 ~~246 ~~357 ~~468} 
 ~*0.25 
 ]</pre>
+                <b>Simple feedback</b><br>
+                Adds node output to its input + original input
+                <pre>@'~~L</pre>
+                <i>Some feedback FM</i><br>
+<pre>@main 
+@[
+@`@[~~L ~-_ ~*0.5 
+@/{@[~*@[~~100 ~~L] ~*~~2.2] @[@`~~L]} ] 
+~*1.0 
+]</pre>
                 <hr>
                 <h5>Node definitions</h5>
                 You can define your node like that:
@@ -114,6 +124,7 @@
                 <pre>Square(100)</pre>
                 <b> oscillator: sine with input scaled to 0..10 mapped to 0..SR/2 </b>
                 <pre>~~L</pre>
+                <pre>SineCVLin()</pre>
                 <b> multiply by constant or other node output </b>
                 <pre>~*100</pre>
                 <pre>~*~~100</pre>
@@ -121,18 +132,26 @@
                 <pre>~%</pre>
                 <b> zero generator </b>
                 <pre>~0</pre>
+                <pre>Silence()</pre>
                 <b> hyperbolic tangent shaper </b>
                 <pre>~~tanh</pre>
+                <pre>Tanh()</pre>
                 <b>Bipolar signal (-1..1) to unipolar (0..1)</b>
                 <pre>~-_</pre>
+                <pre>BipToUni()</pre>
                 <b>Unipolar signal (-1..1) to bipolar (0..1)</b>
                 <pre>~_-</pre>
+                <pre>UniToBip()</pre>
+                <b>Clip in -1..1 range</b>
+                <pre>ClipFS()</pre>
                 <b>Less than constant (outputs 0 or 1)</b>
                 <pre>Lt(0.5)</pre>
                 <b>Greater than constant (outputs 0 or 1)</b>
                 <pre>Gt(0.5)</pre>
                 <b>ADSR envelope: using input as gate [WIP]</b>
                 <pre>ADSR(0.005 0.02 0.0 0.0)</pre>
+                <b>RMS calculation [WIP - currently fixed 512 sample frame]</b>
+                <pre>RMS()</pre>
                 <hr>
                 Use "Share" button to copy/run your code (up to 1024 bytes)<br>
                 <br>
