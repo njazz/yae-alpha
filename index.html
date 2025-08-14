@@ -135,6 +135,10 @@
                 <b> multiply by constant or other node output </b>
                 <pre>~*100</pre>
                 <pre>~*~~100</pre>
+                <b> add constant or other node output </b>
+                <pre>~+100</pre>
+                <pre>~+~~100</pre>
+                <!-- -->
                 <b> white noise generator </b>
                 <pre>~%</pre>
                 <b> zero generator </b>
@@ -142,13 +146,17 @@
                 <pre>Silence()</pre>
                 <!-- -->
                 <b> filter: 2-pole lowpass [WIP]</b>
-                <pre>lp12(100,0.1)</pre>
+                <pre>Lp12(100,0.1)</pre>
+                <pre>~lp12(100,0.1)</pre>
                 <b> filter: 2-pole highpass [WIP]</b>
-                <pre>hp12(100,0.1)</pre>
+                <pre>Hp12(100,0.1)</pre>
+                <pre>~hp12(100,0.1)</pre>
                 <b> filter: 2-pole bandpass [WIP]</b>
-                <pre>bp12(100,0.1)</pre>
+                <pre>Bp12(100,0.1)</pre>
+                <pre>~bp12(100,0.1)</pre>
                 <b> filter: 2-pole notch [WIP]</b>
-                <pre>notch12(100,0.1)</pre>
+                <pre>Notch12(100,0.1)</pre>
+                <pre>~notch12(100,0.1)</pre>
                 <!-- -->
                 <b>Bipolar signal (-1..1) to unipolar (0..1)</b>
                 <pre>~-_</pre>
@@ -174,6 +182,18 @@
                 <pre>Lt(0.5)</pre>
                 <b>Greater than constant (outputs 0 or 1)</b>
                 <pre>Gt(0.5)</pre>
+                <!-- -->
+                <b> Envelope follower: attack/decay (ms) </b>
+                <pre>~envf(1,100)</pre>
+                <pre>EnvFollow(1,100)</pre>
+                <b> Sample-and-hold: ratio </b>
+                <pre>~sah(2)</pre>
+                <b> Frequency shifter: freq </b>
+                <pre>~shift(100)</pre>
+                <b> Delay: seconds </b>
+                <pre>Delay(1)</pre>
+                <pre>~del(1)</pre>
+                <!-- -->
                 <b>ADSR envelope: using input as gate [WIP]</b>
                 <pre>ADSR(0.005 0.02 0.0 0.0)</pre>
                 <b>RMS calculation [WIP - currently fixed 512 sample frame]</b>
