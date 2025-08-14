@@ -105,7 +105,7 @@ Tanh()
 
             const sampleRate = 48000;
             const blockSize = 512;
-            const channels = 1;
+            const channels = 2;
             yModule._y_engine_dsp_node_prepare(engine, channels, blockSize, sampleRate);
 
             yModule._y_optional_dsp_build_fn_free(builder);
@@ -156,7 +156,7 @@ Tanh()
         }
     }
 
-    const MAX_SIZE = 1024; // max content length
+    const MAX_SIZE = 2048; // max content length
 
     // On share button click
     document.getElementById('shareBtn').addEventListener('click', () => {
@@ -220,24 +220,26 @@ function startAudio() {
 
         const sampleRate = 48000;
         const blockSize = 512;
-        const channels = 1;
+        const channels = 2;
 
         yModule._y_engine_dsp_node_prepare(engine, channels, blockSize, sampleRate);
 
-        bufferIn = yModule._malloc(blockSize * 4);
-        bufferOut = yModule._malloc(blockSize * 4);
+        bufferIn = yModule._malloc(blockSize * 4*channels);
+        bufferOut = yModule._malloc(blockSize * 4*channels);
 
-        scriptNode = audioContext.createScriptProcessor(blockSize, 1, 1);
+        scriptNode = audioContext.createScriptProcessor(blockSize, 2, 2);
 
         scriptNode.onaudioprocess = function(e) {
             const output = e.outputBuffer.getChannelData(0);
+            const outputR = e.outputBuffer.getChannelData(1);
 
             yModule._y_engine_dsp_node_process(engine, bufferIn, bufferOut);
 
-            const outputView = new Float32Array(yModule.HEAPF32.buffer, bufferOut, blockSize);
+            const outputView = new Float32Array(yModule.HEAPF32.buffer, bufferOut, blockSize*2);
 
             for (let i = 0; i < blockSize; i++) {
-                output[i] = outputView[i];
+                output[i] = outputView[i];   
+                outputR[i] = outputView[i + blockSize];                
             }
 
             drawScope(output);
