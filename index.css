@@ -121,6 +121,16 @@ body,
     color: #aaa
 }
 
+/* ---------------------------------------------------------------- */
+
+/*#dspstatus {
+  justify-content: flex-start; 
+}
+
+#dspstatus>* {
+    text-align: left;
+}*/
+
 pre {
     color: #c099ff !important
 }

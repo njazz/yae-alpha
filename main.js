@@ -96,8 +96,11 @@ Tanh()
 
         const hasValue = yModule._y_optional_dsp_build_fn_has_value(builder);
 
-        if (hasValue === true) {
+        console.log(hasValue);
+
+        if (!!hasValue) {
             console.log("✅ DSP parsed successfully");
+            document.getElementById("dspstatus").innerHTML = "✅ DSP parsed successfully";
             yModule._y_engine_dsp_set(engine, builder);
 
             const sampleRate = 48000;
@@ -111,6 +114,7 @@ Tanh()
             const errPtr = yModule._y_engine_get_new_last_error(engine);
             const err = yModule.UTF8ToString(errPtr);
             console.warn("❌ DSP error:", err);
+            document.getElementById("dspstatus").innerHTML = "❌ DSP error";
 
             yModule._y_optional_dsp_build_fn_free(builder);
         }
