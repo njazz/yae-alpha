@@ -108,17 +108,29 @@ Tanh()
             const channels = 2;
             yModule._y_engine_dsp_node_prepare(engine, channels, blockSize, sampleRate);
 
-            yModule._y_optional_dsp_build_fn_free(builder);
+            try {
+                if (!!builder)
+                    yModule._y_optional_dsp_build_fn_free(builder);
+            } catch (e) {
+                console.log("WASM error");
+            }
+
+
 
         } else {
             const errPtr = yModule._y_engine_get_new_last_error(engine);
             const err = yModule.UTF8ToString(errPtr);
             console.warn("❌ DSP error:", err);
-            document.getElementById("dspstatus").innerHTML = "❌ DSP error";
+            document.getElementById("dspstatus").innerHTML = "❌ DSP parse error";
 
-            yModule._y_optional_dsp_build_fn_free(builder);
+            try {
+                if (!!builder)
+                    yModule._y_optional_dsp_build_fn_free(builder);
+            } catch (e) {
+                console.log("WASM error");
+            }
         }
-        
+
     }
 
     editor.onDidChangeModelContent(handleEditorChange);
@@ -224,26 +236,80 @@ function startAudio() {
 
         yModule._y_engine_dsp_node_prepare(engine, channels, blockSize, sampleRate);
 
-        bufferIn = yModule._malloc(blockSize * 4*channels);
-        bufferOut = yModule._malloc(blockSize * 4*channels);
+        // --
+
+        // Allocate aligned buffers once, outside the loop
+        // PFFFT likes 16-byte alignment, Float32Array per channel
+        const bufferInPtr = yModule._malloc(blockSize * channels * 4); // 4 bytes per float
+        const bufferOutPtr = yModule._malloc(blockSize * channels * 4);
+
+        // Create typed arrays for JS access
+        const bufferIn = new Float32Array(yModule.HEAPF32.buffer, bufferInPtr, blockSize * channels);
+        const bufferOut = new Float32Array(yModule.HEAPF32.buffer, bufferOutPtr, blockSize * channels);
 
         scriptNode = audioContext.createScriptProcessor(blockSize, 2, 2);
-
+        
         scriptNode.onaudioprocess = function(e) {
-            const output = e.outputBuffer.getChannelData(0);
+            const outputL = e.outputBuffer.getChannelData(0);
             const outputR = e.outputBuffer.getChannelData(1);
 
-            yModule._y_engine_dsp_node_process(engine, bufferIn, bufferOut);
+            // Copy input to WASM buffer (if you have input)
+            // const inputL = e.inputBuffer.getChannelData(0);
+            // const inputR = e.inputBuffer.getChannelData(1);
+            // for (let i = 0; i < blockSize; i++) {
+            //     bufferIn[i] = inputL[i];
+            //     bufferIn[i + blockSize] = inputR[i];
+            // }
 
-            const outputView = new Float32Array(yModule.HEAPF32.buffer, bufferOut, blockSize*2);
-
-            for (let i = 0; i < blockSize; i++) {
-                output[i] = outputView[i];   
-                outputR[i] = outputView[i + blockSize];                
+            try {
+                yModule._y_engine_dsp_node_process(engine, bufferInPtr, bufferOutPtr);
+            } catch (err) {
+                document.getElementById("dspstatus").innerHTML = "❌ DSP engine error";
+                console.error("DSP ERROR:", err);
+                scriptNode.onaudioprocess = () => {};
+                return;
             }
 
-            drawScope(output);
+            // Copy output from WASM buffer to AudioBuffer
+            for (let i = 0; i < blockSize; i++) {
+                outputL[i] = bufferOut[i];
+                outputR[i] = bufferOut[i + blockSize];
+            }
+
+            drawScope(outputL);
         };
+
+        // --
+
+        // bufferIn = yModule._malloc(blockSize * 4 * channels);
+        // bufferOut = yModule._malloc(blockSize * 4 * channels);
+
+        // scriptNode = audioContext.createScriptProcessor(blockSize, 2, 2);
+
+        // scriptNode.onaudioprocess = function(e) {
+        //     const output = e.outputBuffer.getChannelData(0);
+        //     const outputR = e.outputBuffer.getChannelData(1);
+
+        //     try {
+        //         yModule._y_engine_dsp_node_process(engine, bufferIn, bufferOut);
+        //     }
+        //     catch (e) {
+        //         document.getElementById("dspstatus").innerHTML = "❌ DSP engine error";
+        //         console.log("DSP ERROR:");
+        //         console.log(e);
+        //         scriptNode.onaudioprocess = function(e) {};
+        //         return;
+        //     }
+
+        //     const outputView = new Float32Array(yModule.HEAPF32.buffer, bufferOut, blockSize * 2);
+
+        //     for (let i = 0; i < blockSize; i++) {
+        //         output[i] = outputView[i];
+        //         outputR[i] = outputView[i + blockSize];
+        //     }
+
+        //     drawScope(output);
+        // };
 
         scriptNode.connect(audioContext.destination);
 
