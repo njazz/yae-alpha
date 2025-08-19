@@ -112,7 +112,8 @@ Tanh()
                 if (!!builder)
                     yModule._y_optional_dsp_build_fn_free(builder);
             } catch (e) {
-                console.log("WASM error");
+                console.log("WASM Error:");
+                console.error(e);
             }
 
 
@@ -127,7 +128,8 @@ Tanh()
                 if (!!builder)
                     yModule._y_optional_dsp_build_fn_free(builder);
             } catch (e) {
-                console.log("WASM error");
+                console.log("WASM Error:");
+                console.error(e);
             }
         }
 
@@ -240,15 +242,15 @@ function startAudio() {
 
         // Allocate aligned buffers once, outside the loop
         // PFFFT likes 16-byte alignment, Float32Array per channel
-        const bufferInPtr = yModule._malloc(blockSize * channels * 4); // 4 bytes per float
-        const bufferOutPtr = yModule._malloc(blockSize * channels * 4);
+        yModule.bufferInPtr = yModule._malloc(blockSize * channels * 4); // 4 bytes per float
+        yModule.bufferOutPtr = yModule._malloc(blockSize * channels * 4);
 
         // Create typed arrays for JS access
-        const bufferIn = new Float32Array(yModule.HEAPF32.buffer, bufferInPtr, blockSize * channels);
-        const bufferOut = new Float32Array(yModule.HEAPF32.buffer, bufferOutPtr, blockSize * channels);
+        const bufferIn = new Float32Array(yModule.HEAPF32.buffer, yModule.bufferInPtr, blockSize * channels);
+        const bufferOut = new Float32Array(yModule.HEAPF32.buffer, yModule.bufferOutPtr, blockSize * channels);
 
         scriptNode = audioContext.createScriptProcessor(blockSize, 2, 2);
-        
+
         scriptNode.onaudioprocess = function(e) {
             const outputL = e.outputBuffer.getChannelData(0);
             const outputR = e.outputBuffer.getChannelData(1);
@@ -262,7 +264,7 @@ function startAudio() {
             // }
 
             try {
-                yModule._y_engine_dsp_node_process(engine, bufferInPtr, bufferOutPtr);
+                yModule._y_engine_dsp_node_process(engine, yModule.bufferInPtr, yModule.bufferOutPtr);
             } catch (err) {
                 document.getElementById("dspstatus").innerHTML = "❌ DSP engine error";
                 console.error("DSP ERROR:", err);
@@ -412,9 +414,10 @@ function stopAudio() {
         audioContext = null;
     }
 
-
-
     if (engine && yModule) {
+        yModule._free(yModule.bufferInPtr);
+        yModule._free(yModule.bufferOutPtr);
+
         if (bufferIn) {
             yModule._free(bufferIn);
             bufferIn = null;
