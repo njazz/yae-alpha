@@ -133,19 +133,19 @@
                 <b> oscillator: square with input scaled to CV (0..10) mapped to 0..SR/2 </b>
                 <pre>~|L</pre>
                 <pre>SquareCVLin()</pre>
-                <!-- -->
-                <b> multiply by constant or other node output </b>
-                <pre>~*100</pre>
-                <pre>~*~~100</pre>
+                <!-- -->                
                 <b> add constant or other node output </b>
                 <pre>~+100</pre>
                 <pre>~+~~100</pre>
-                <b> divide by constant or other node output </b>
-                <pre>~/100</pre>
-                <pre>~/~~100</pre>
                 <b> subtract constant or other node output </b>
                 <pre>~-100</pre>
                 <pre>~-~~100</pre>
+                <b> multiply by constant or other node output </b>
+                <pre>~*100</pre>
+                <pre>~*~~100</pre>
+                <b> divide by constant or other node output </b>
+                <pre>~/100</pre>
+                <pre>~/~~100</pre>                
                 <!-- -->
                 <b> white noise generator </b>
                 <pre>~%</pre>
@@ -201,6 +201,13 @@
                 <b> Delay: seconds </b>
                 <pre>Delay(1)</pre>
                 <pre>~del(1)</pre>
+                <!-- -->
+                <b>Evenly place mono channels across stereo output using linear panning: </b>
+                <pre>~stereo{~~220 ~~330}</pre>
+                <b>Place mono channel in stereo field with linear panning function (0..1)</b>
+                <pre>~panlin(0.1){~%}</pre>
+                <b>Place mono channel in stereo field with cosine panning function (0..1)</b>
+                <pre>~pancos(0.1){~%}</pre>
                 <!-- -->
                 <b> Minimum value in the buffer </b>
                 <pre>BMin()</pre>
