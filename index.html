@@ -240,6 +240,27 @@
                 <b>Runnung zero-crossing rate</b>
                 <pre>ZCR()</pre>
                 <pre>~zcr</pre>
+                <!-- -->
+                <b>Run an FFT block [WIP currently fixed 512 samples size and no windowing]</b>
+                <pre>~fft[.In() .Out()]</pre>
+                <b>FFT builder functions:</b>
+                <b>Input to the internal FFT context</b>
+                <pre>.In()</pre>
+                <pre>.In</pre>
+                <b>Output from the internal FFT context</b>
+                <pre>.Out()</pre>
+                <pre>.Out</pre>
+                <b>Process real part of the internal FFT data</b>
+                <pre>.Real{~*1.0}</pre>
+                <b>Process imaginary part of the internal FFT data</b>
+                <pre>.Imag{~*0.1}</pre>
+                <b>From Cartesian to Polar coordinates (internal FFT data)</b>
+                <pre>.ToPol()</pre>
+                <pre>.ToPol</pre>
+                <b>From Polar to Cartesian coordinates (internal FFT data)</b>
+                <pre>.ToCar()</pre>
+                <pre>.ToCar</pre>
+                <!-- -->
                 <hr>
                 Use "Share" button to copy/run your code (up to 1024 bytes)<br>
                 <br>
