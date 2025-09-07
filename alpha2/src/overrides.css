@@ -1,0 +1,11 @@
+.react-flow__node {
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+.react-flow__node {
+  width: auto !important;   
+  min-width: 40px !important;
+}
