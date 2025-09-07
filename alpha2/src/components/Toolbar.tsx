@@ -22,6 +22,7 @@ export default function Toolbar({
     <div
       style={{
         width: "78%",
+        height: "36px",
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
@@ -31,45 +32,41 @@ export default function Toolbar({
     >
       {/* Buttons */}
       <div>
+
+        <div class="btn-group" style={{display: "flex", width:"180px", height: "36px"}}>
+
         <button
           onClick={onStart}
           disabled={audioRunning}
-          style={{ marginRight: "10px" }}
+          class="btn btn-start"
         >
-          Start Audio
+          Start
         </button>
-        <button onClick={onStop} disabled={!audioRunning}>
-          Stop Audio
+        <button onClick={onStop} disabled={!audioRunning} class="btn btn-stop">
+          Stop 
         </button>
-&nbsp;&nbsp;
-        <button
-  onClick={onToggleGraph}
-  // style={{
-  // //   background: "none",
-  // //   border: "none",
-  // //   padding: "6px 12px",
-  // //   color: "#fff",
-  // //   cursor: "pointer",
-  //   // fontSize: "14px",
-  // //   transition: "background 0.2s",
-  //   // backgroundColor: 
-  // }}
-  // onMouseOver={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.1)")}
-  // onMouseOut={(e) => (e.currentTarget.style.background = "none")}
->
-  Display Graph
-</button>
+
+      </div>
+
+
+        
 
       </div>
 
       {/* Status placeholder */}
-      <div id="dspstatus" style={{ color: "#0f0" }}>
+      <div id="dspstatus" style={{ color: "#0f0"}}>
         {/*{audioRunning ? "Running" : "Stopped"}*/ status }
       </div>
 
       {/* Right side group */}
-      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-        <button onClick={onShare}>Share</button>
+      <div style={{ display: "flex", alignItems: "center", gap: "8px", width:"180px", height: "36px" }}>
+        <button
+  onClick={onToggleGraph} 
+  class="btn-basic"
+>
+  Graph
+</button>
+        <button onClick={onShare} class="btn-basic">Share</button>
         {/* Scope + Sonogram will be separate components */}
       </div>
     </div>

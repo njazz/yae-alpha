@@ -60,6 +60,7 @@ export default function Scope({ buffer }: ScopeProps) {
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
+
     const width = canvas.width;
     const height = canvas.height;
 
@@ -90,9 +91,15 @@ export default function Scope({ buffer }: ScopeProps) {
   }, [buffer]);
 
   return (
+    // <canvas
+    //   ref={canvasRef}
+    //   style={{ width: "200px", height: "100%", background: "#111" }}
+    // />
+    // <div style={{ width: "200px", height: "100%", background: "#111" }}>
     <canvas
       ref={canvasRef}
-      style={{ width: "200px", height: "100%", background: "#111" }}
+      style={{ width: "100%", height: "100%" }}
     />
+  // </div>
   );
 }

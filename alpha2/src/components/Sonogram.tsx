@@ -7,11 +7,24 @@ type SonogramProps = {
 
 export default function Sonogram({ analyzer }: SonogramProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const drawIdRef = useRef<number>(null);
+  const drawIdRef = useRef<number | null>(null);
 
   useEffect(() => {
+    // if (!analyzer) return; // wait until analyzer is available
+
+
+    // console.log("load!");
+
     const canvas = canvasRef.current;
-    if (!canvas || !analyzer) return;
+    if (!canvas) return;
+
+    // Resize canvas to fill parent
+    const resizeCanvas = () => {
+      canvas.width = canvas.clientWidth;
+      canvas.height = canvas.clientHeight;
+    };
+    resizeCanvas();
+
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
@@ -19,7 +32,6 @@ export default function Sonogram({ analyzer }: SonogramProps) {
 
     function heatmapColorForValue(value: number) {
       const t = value / 255;
-      if (t <= 0) return "rgb(0,0,0)";
       const r = Math.min(255, 255 * t * 2);
       const g = t > 0.5 ? Math.min(255, 255 * (t - 0.5) * 2) : 0;
       const b = 0.5 * r;
@@ -27,33 +39,47 @@ export default function Sonogram({ analyzer }: SonogramProps) {
     }
 
     const draw = () => {
+      // console.log("draw");
       drawIdRef.current = requestAnimationFrame(draw);
+
       analyzer.getByteFrequencyData(freqData);
 
-      // shift left
+      // Shift existing canvas left
       const imgData = ctx.getImageData(1, 0, canvas.width - 1, canvas.height);
       ctx.putImageData(imgData, 0, 0);
 
-      // draw new column
+      // Draw new column
       for (let y = 0; y < canvas.height; y++) {
         const value =
           freqData[Math.floor((y * freqData.length) / canvas.height)];
-        if (!!value)
-          ctx.fillStyle = heatmapColorForValue(value);
-        ctx.fillRect(canvas.width - 1, canvas.height - y, 1, 1);
+        ctx.fillStyle = heatmapColorForValue(value);
+        ctx.fillRect(canvas.width - 1, canvas.height - 1 - y, 1, 1);
       }
     };
 
     draw();
+
+    // Handle window resize
+    const handleResize = () => {
+      cancelAnimationFrame(drawIdRef.current!);
+      resizeCanvas();
+      draw();
+    };
+    window.addEventListener("resize", handleResize);
+
     return () => {
       if (drawIdRef.current) cancelAnimationFrame(drawIdRef.current);
+      window.removeEventListener("resize", handleResize);
     };
-  }, [analyzer]);
+  }, [analyzer]); // re-run whenever analyzer becomes available
+
 
   return (
+    
     <canvas
       ref={canvasRef}
-      style={{ width: "200px", height: "100%", background: "#111" }}
+      style={{ width: "100%", height: "100%" }}
     />
+
   );
 }

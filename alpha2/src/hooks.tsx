@@ -99,7 +99,7 @@ export function useDSP() {
                 if (builder) module._y_optional_dsp_build_fn_free(builder);
             } catch (err) {
                 console.error("WASM DSP error:", err);
-                setStatus("❌ DSP runtime error: "+err);
+                setStatus("❌ DSP runtime error: " + err);
             }
         },
         [module, engine]
@@ -122,8 +122,11 @@ export function useDSP() {
 // -----------------------------
 export function useAudioEngine(dsp) {
     const [running, setRunning] = useState(false);
+    const [analyzer, setAnalyzer] = useState<AnalyserNode | null>(null);
+
     const audioCtxRef = useRef(null);
     const scriptNodeRef = useRef(null);
+    // const analyzerRef = useRef(null);
     const bufferOutRef = useRef(null);
 
     const start = useCallback(() => {
@@ -156,10 +159,25 @@ export function useAudioEngine(dsp) {
             }
         };
 
-        scriptNode.connect(audioCtx.destination);
-        scriptNodeRef.current = scriptNode;
+        const analyser = audioCtx.createAnalyser();
+        analyser.fftSize = 2048;
 
+        scriptNode.connect(analyser);
+
+        // const osc = audioCtx.createOscillator();
+        // osc.frequency.value = 1000;
+        // osc.connect(analyser);
+
+        analyser.connect(audioCtx.destination);
+
+        // osc.start();
+
+        // scriptNode.connect(audioCtx.destination);
+        
+        setAnalyzer(analyser);        
+        scriptNodeRef.current = scriptNode;
         audioCtxRef.current = audioCtx;
+
         // bufferOutRef.current = bufferOut;
         setRunning(true);
     }, [running, dsp]);
@@ -168,32 +186,38 @@ export function useAudioEngine(dsp) {
         if (!running) return;
         if (scriptNodeRef.current) scriptNodeRef.current.disconnect();
         if (audioCtxRef.current) audioCtxRef.current.close();
+
         setRunning(false);
 
         if (scriptNodeRef.current) {
-scriptNodeRef.current.disconnect();
-scriptNodeRef.current = null;
-}
+            scriptNodeRef.current.disconnect();
+            scriptNodeRef.current = null;
+        }
 
 
-if (audioCtxRef.current) {
-audioCtxRef.current.close();
-audioCtxRef.current = null;
-}
+        if (audioCtxRef.current) {
+            // audioCtxRef.current.close();
+            audioCtxRef.current = null;
+        }
+
+        // if (analyzerRef.current) {
+        //     // analyzerRef.current.disconnect();
+        //     analyzerRef.current = null;
+        // }
+        setAnalyzer(null);
+
+        if (engine && module) {
+            module._y_engine_free(engine);
+            setEngine(null);
+            setModule(null);
+        }
 
 
-if (engine && module) {
-module._y_engine_free(engine);
-setEngine(null);
-setModule(null);
-}
-
-
-bufferOutRef.current = null;
+        bufferOutRef.current = null;
 
     }, [running]);
 
-    return { running, start, stop, bufferOutRef, scriptNodeRef };
+    return { running, start, stop, bufferOutRef, scriptNodeRef, analyzer };
 }
 
 export default { useDSP, useAudioEngine }

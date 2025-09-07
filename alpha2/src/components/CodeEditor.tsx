@@ -102,7 +102,7 @@ const myParser: StreamParser<{}> = {
 export const myTheme = createTheme({
   theme: "dark",
   settings: {
-    background: "#1e1e1e",
+    background: "#000",
     foreground: "#d4d4d4",
     caret: "#ffcc00",
     selection: "#55555566",

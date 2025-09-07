@@ -19,7 +19,7 @@ const Fader = ({ index, onChange }) => {
         // alignItems: "center",
       }}
     >
-      <div style={{ marginBottom: "6px", color: "#fff", textAlign: "left" }}>
+      <div style={{ marginBottom: "2px", color: "#fff", textAlign: "left" }}>
         {`F${index}: ${value}%`}
       </div>
       <input
@@ -31,13 +31,14 @@ const Fader = ({ index, onChange }) => {
         style={{
           width: "100%",
           height: "36px",
-          borderRadius: "8px",
+          borderRadius: "5px",
           appearance: "none",
           WebkitAppearance: "none",
           background: `linear-gradient(to right, #ff6633 ${value}%, #555 ${value}%)`,
           outline: "none",
           cursor: "pointer",
-
+          border: "1px #fff",
+          margin: "0px"
         }}
       />
     </div>
@@ -56,7 +57,7 @@ const FadersPage = ({ onFaderChange }) => {
         alignItems: "stretch",
         padding: "5px",
         // margin: "5px",
-        borderRadius: "8px",
+        borderRadius: "5px",
         backgroundColor: "#333",
         width: "12vw",
       }}
