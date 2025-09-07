@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>yae wasm - alpha</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet" />
+    <link href="index.css" rel="stylesheet" />
+</head>
+
+<body>
+    <div id="app" class="container-fluid d-flex flex-column p-0" style="height: 100vh;">
+        <div id="appname" class="w-100">
+            <a href="index.html" style="font-style: normal; text-decoration: none !important; font-weight: bold; color: white;">yae</a> | yet another environment | alpha
+            <hr style="margin-bottom: 9px; margin-top: 3px">
+        </div>
+        <div id="topbar" class="w-100 d-flex justify-content-between align-items-center">
+            <div id="buttons" class="btn-group" role="group" aria-label="Audio controls">
+                <button id="startAudio" type="button" class="btn btn-primary">Start Audio</button>
+                <button id="stopAudio" type="button" class="btn btn-danger" disabled>Stop Audio</button>
+            </div>
+            <div id="dspstatus">
+            </div>
+            <div id="shareScopeGroup" class="d-flex align-items-center gap-2">
+                <button id="shareBtn" type="button" class="btn btn-primary">Share</button>
+                <canvas id="scope"></canvas>
+                <canvas id="sonogram"></canvas>
+            </div>
+        </div>
+        <hr style="margin-bottom: 3px; margin-top: 0px">
+        <div id="editorGroup">
+            <div id="faders" class="faders">
+                <input type="range" min="0" max="100" value="0">
+                <input type="range" min="0" max="100" value="0">
+                <input type="range" min="0" max="100" value="0">
+                <input type="range" min="0" max="100" value="0">
+                <input type="range" min="0" max="100" value="0">
+                <input type="range" min="0" max="100" value="0">
+                <input type="range" min="0" max="100" value="0">
+                <input type="range" min="0" max="100" value="0">
+            </div>
+            <div id="editor"></div>
+            <div id="quickstart" style="background-color: transparent;">
+                <!-- <hr> -->
+                <!-- <div id="quickstart"> -->
+                <h3>Quick Start</h3>
+                <hr>
+                This is a proof-of-concept / preview for a (not only) audio DSP language<br>
+                <br>
+                <hr>
+                <h5>Minimal example</h5>
+                Use
+                <pre>@main</pre> to define the main audio DSP Node:<br>
+                <br>
+                white noise:<br>
+                <pre>@main ~%</pre>
+                silence:<br>
+                <pre>@main ~0</pre>
+                440Hz sinewave<br>
+                <pre>@main ~~440</pre>
+                <hr>
+                <h5>Channel composition</h5>
+                <br>
+                <b>Sequence</b><br>
+                Connects output of NODE1 to input of NODE2
+                <pre>@[ NODE1 NODE2 ... ]</pre>
+                <i>ring modulation</i>
+                <pre>@main @[ ~~345 ~*~~456 ]</pre>
+                <br>
+                <b>Parallel mix</b><br>
+                Runs all nodes in parallel and sums output
+                <pre>@{ NODE1 NODE2 ... }</pre>
+                <i>additive synth with attenuation</i>
+                <pre>@main @[ @{ ~~234 ~~345 ~~456 ~~567} ~*0.12345 ]</pre>
+                <br>
+                <b>Average mix</b><br>
+                Runs all nodes in parallel, outputs a sum of output divided by node size
+                <pre>@/{ NODE1 NODE2 ... }</pre>
+                <i>additive synth with ring modulation</i>
+                <pre>@main @[ 
+@/{ ~~234 ~~345 ~~456 ~~567} 
+~*@/{ ~~135 ~~246 ~~357 ~~468} 
+~*0.25 
+]</pre>
+                <b>Simple feedback</b><br>
+                Adds node output to its input + original input
+                <pre>@'~~L</pre>
+                <i>Some feedback FM</i><br>
+                <pre>@main 
+@[
+@`@[~~L ~-_ ~*0.5 
+@/{@[~*@[~~100 ~~L] ~*~~2.2] @[@`~~L]} ] 
+~*1.0 
+]</pre>
+                <hr>
+                <h5>Node definitions</h5>
+                You can define your node like that:
+                <pre>@def nodeName() = ...</pre>
+                and later use it:<br>
+                <pre>@main = nodeName()</pre>
+                <i>group of examples</i>
+                <pre>
+@def ringMod() = @[ ~~345 ~*~~456 ~*~%]
+@def additive() =  @[ 
+@/{ ~~0.234 ~~0.345 ~~0.456 ~~0.567} 
+~*@/{ ~~11.35 ~~12.46 ~~13.57 ~~14.68} 
+~*0.25 
+]
+
+@main @[ ringMod() ~*additive() ]
+  </pre>
+                <hr>
+                <h5>Node List</h5>
+                <b> oscillator: sine </b>
+                <pre>~~100</pre>
+                <pre>Sine(100)</pre>
+                <b> oscillator: saw </b>
+                <pre>~\100</pre>
+                <pre>Saw(100)</pre>
+                <b> oscillator: square </b>
+                <pre>~|100</pre>
+                <pre>Square(100)</pre>
+                <b> oscillator: sine with input scaled to CV (0..10) mapped to 0..SR/2 </b>
+                <pre>~~L</pre>
+                <pre>SineCVLin()</pre>
+                <b> oscillator: saw with input scaled to CV (0..10) mapped to 0..SR/2 </b>
+                <pre>~\L</pre>
+                <pre>SawCVLin()</pre>
+                <b> oscillator: square with input scaled to CV (0..10) mapped to 0..SR/2 </b>
+                <pre>~|L</pre>
+                <pre>SquareCVLin()</pre>
+                <!-- -->                
+                <b> add constant or other node output </b>
+                <pre>~+100</pre>
+                <pre>~+~~100</pre>
+                <b> subtract constant or other node output </b>
+                <pre>~-100</pre>
+                <pre>~-~~100</pre>
+                <b> multiply by constant or other node output </b>
+                <pre>~*100</pre>
+                <pre>~*~~100</pre>
+                <b> divide by constant or other node output </b>
+                <pre>~/100</pre>
+                <pre>~/~~100</pre>                
+                <!-- -->
+                <b> white noise generator </b>
+                <pre>~%</pre>
+                <b> zero generator </b>
+                <pre>~0</pre>
+                <pre>Silence()</pre>
+                <!-- -->
+                <b> filter: 2-pole lowpass [WIP]</b>
+                <pre>Lp12(100,0.1)</pre>
+                <pre>~lp12(100,0.1)</pre>
+                <b> filter: 2-pole highpass [WIP]</b>
+                <pre>Hp12(100,0.1)</pre>
+                <pre>~hp12(100,0.1)</pre>
+                <b> filter: 2-pole bandpass [WIP]</b>
+                <pre>Bp12(100,0.1)</pre>
+                <pre>~bp12(100,0.1)</pre>
+                <b> filter: 2-pole notch [WIP]</b>
+                <pre>Notch12(100,0.1)</pre>
+                <pre>~notch12(100,0.1)</pre>
+                <!-- -->
+                <b>Bipolar signal (-1..1) to unipolar (0..1)</b>
+                <pre>~-_</pre>
+                <pre>BipToUni()</pre>
+                <b>Unipolar signal (-1..1) to bipolar (0..1)</b>
+                <pre>~_-</pre>
+                <pre>UniToBip()</pre>
+                <b>Bipolar signal (-1..1) to CV (0..10)</b>
+                <pre>~-cv</pre>
+                <b>Unipolar signal (-1..1) to CV (0..10)</b>
+                <pre>~_cv</pre>
+                <b>CV (0..10) to bipolar signal (-1..1)</b>
+                <pre>~cv-</pre>
+                <b>CV (0..10) to unipolar signal (-1..1)</b>
+                <pre>~cv_</pre>
+                <!-- -->
+                <b> hyperbolic tangent shaper </b>
+                <pre>~~tanh</pre>
+                <pre>Tanh()</pre>
+                <b>Clip in -1..1 range</b>
+                <pre>ClipFS()</pre>
+                <b>Less than constant (outputs 0 or 1)</b>
+                <pre>Lt(0.5)</pre>
+                <b>Greater than constant (outputs 0 or 1)</b>
+                <pre>Gt(0.5)</pre>
+                <!-- -->
+                <b> Envelope follower: attack/decay (ms) </b>
+                <pre>~envf(1,100)</pre>
+                <pre>EnvFollow(1,100)</pre>
+                <b> Sample-and-hold: ratio </b>
+                <pre>~sah(2)</pre>
+                <b> Frequency shifter: freq </b>
+                <pre>~shift(100)</pre>
+                <b> Delay: seconds </b>
+                <pre>Delay(1)</pre>
+                <pre>~del(1)</pre>
+                <!-- -->
+                <b>Evenly place mono channels across stereo output using linear panning: </b>
+                <pre>~stereo{~~220 ~~330}</pre>
+                <b>Place mono channel in stereo field with linear panning function (0..1)</b>
+                <pre>~panlin(0.1){~%}</pre>
+                <b>Place mono channel in stereo field with cosine panning function (0..1)</b>
+                <pre>~pancos(0.1){~%}</pre>
+                <!-- -->
+                <b> Minimum value in the buffer </b>
+                <pre>BMin()</pre>
+                <b> Maximum value in the buffer</b>
+                <pre>BMax()</pre>
+                <b> Sum of all buffer values</b>
+                <pre>BSum()</pre>
+                <b> Arithmetic mean of the buffer</b>
+                <pre>BMean()</pre>
+                <b> Median of the buffer values </b>
+                <pre>BMedian()</pre>
+                <b> Variance of the buffer values </b>
+                <pre>BVar()</pre>
+                <b>Standard deviation of the buffer values </b>
+                <pre>BStd()</pre>
+                <b>Root mean square of the buffer </b>
+                <pre>BRMS()</pre>
+                <b>Peak (absolute maximum) value in the buffer </b>
+                <pre>BPeak()</pre>
+                <b>Number of zero crossings in the buffer </b>
+                <pre>BZeroCross()</pre>
+                <b>Crest factor (peak-to-RMS ratio) of the buffer</b>
+                <pre>BCrest()</pre>
+                <!-- -->
+                <b>ADSR envelope: using input as gate [WIP]</b>
+                <pre>ADSR(0.005 0.02 0.0 0.0)</pre>
+                <b>RMS calculation [WIP - currently fixed 512 sample frame]</b>
+                <pre>RMS()</pre>
+                <pre>~rms</pre>
+                <b>Runnung zero-crossing rate</b>
+                <pre>ZCR()</pre>
+                <pre>~zcr</pre>
+                <!-- -->
+                <b>Run an FFT block [WIP currently fixed 512 samples size and no windowing]</b>
+                <pre>~fft[.In() .Out()]</pre>
+                <b>FFT builder functions:</b>
+                <b>Input to the internal FFT context</b>
+                <pre>.In()</pre>
+                <pre>.In</pre>
+                <b>Output from the internal FFT context</b>
+                <pre>.Out()</pre>
+                <pre>.Out</pre>
+                <b>Process real part of the internal FFT data</b>
+                <pre>.Real{~*1.0}</pre>
+                <b>Process imaginary part of the internal FFT data</b>
+                <pre>.Imag{~*0.1}</pre>
+                <b>From Cartesian to Polar coordinates (internal FFT data)</b>
+                <pre>.ToPol()</pre>
+                <pre>.ToPol</pre>
+                <b>From Polar to Cartesian coordinates (internal FFT data)</b>
+                <pre>.ToCar()</pre>
+                <pre>.ToCar</pre>
+                <!-- -->
+                <hr>
+                Use "Share" button to copy/run your code (up to 1024 bytes)<br>
+                <br>
+                <a href="https://github.com/njazz/yae-alpha/issues">issue tracker</a>
+                <br>
+                <br>
+                9.08.2025 / preview <br>
+                <br>
+                <!-- Add quickstart content here -->
+                <!-- </div> -->
+            </div>
+        </div>
+    </div>
+    <!-- Scripts -->
+    <script src="yae_lca_core_wasm.js"></script>
+    <script src="https://unpkg.com/monaco-editor@0.45.0/min/vs/loader.js"></script>
+    <script src="main.js">
+    </script>
+</body>
+
+</html>
