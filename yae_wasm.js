@@ -1248,6 +1248,8 @@ var _y_optional_dsp_build_fn_free = Module["_y_optional_dsp_build_fn_free"] = ma
 
 var _y_engine_free = Module["_y_engine_free"] = makeInvalidEarlyAccess("_y_engine_free");
 
+var _y_engine_set_toggle = Module["_y_engine_set_toggle"] = makeInvalidEarlyAccess("_y_engine_set_toggle");
+
 var _malloc = Module["_malloc"] = makeInvalidEarlyAccess("_malloc");
 
 var _y_engine_get_amplitude_response_svg = Module["_y_engine_get_amplitude_response_svg"] = makeInvalidEarlyAccess("_y_engine_get_amplitude_response_svg");
@@ -1289,6 +1291,7 @@ function assignWasmExports(wasmExports) {
   Module["_y_engine_set_slider"] = _y_engine_set_slider = createExportWrapper("y_engine_set_slider", 3);
   Module["_y_optional_dsp_build_fn_free"] = _y_optional_dsp_build_fn_free = createExportWrapper("y_optional_dsp_build_fn_free", 1);
   Module["_y_engine_free"] = _y_engine_free = createExportWrapper("y_engine_free", 1);
+  Module["_y_engine_set_toggle"] = _y_engine_set_toggle = createExportWrapper("y_engine_set_toggle", 3);
   Module["_malloc"] = _malloc = createExportWrapper("malloc", 1);
   Module["_y_engine_get_amplitude_response_svg"] = _y_engine_get_amplitude_response_svg = createExportWrapper("y_engine_get_amplitude_response_svg", 1);
   Module["_y_engine_get_phase_response_svg"] = _y_engine_get_phase_response_svg = createExportWrapper("y_engine_get_phase_response_svg", 1);
