@@ -597,7 +597,7 @@ function createExportWrapper(name, nargs) {
 var wasmBinaryFile;
 
 function findWasmBinary() {
-  return locateFile("yae_lca_core_wasm.wasm");
+  return locateFile("yae_wasm.wasm");
 }
 
 function getBinarySync(file) {
