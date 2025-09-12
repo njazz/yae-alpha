@@ -748,6 +748,135 @@ var warnOnce = text => {
   }
 };
 
+var ENV = {};
+
+var getExecutableName = () => thisProgram || "./this.program";
+
+var getEnvStrings = () => {
+  if (!getEnvStrings.strings) {
+    // Default values.
+    // Browser language detection #8751
+    var lang = ((typeof navigator == "object" && navigator.language) || "C").replace("-", "_") + ".UTF-8";
+    var env = {
+      "USER": "web_user",
+      "LOGNAME": "web_user",
+      "PATH": "/",
+      "PWD": "/",
+      "HOME": "/home/web_user",
+      "LANG": lang,
+      "_": getExecutableName()
+    };
+    // Apply the user-provided values, if any.
+    for (var x in ENV) {
+      // x is a key in ENV; if ENV[x] is undefined, that means it was
+      // explicitly set to be so. We allow user code to do that to
+      // force variables with default values to remain unset.
+      if (ENV[x] === undefined) delete env[x]; else env[x] = ENV[x];
+    }
+    var strings = [];
+    for (var x in env) {
+      strings.push(`${x}=${env[x]}`);
+    }
+    getEnvStrings.strings = strings;
+  }
+  return getEnvStrings.strings;
+};
+
+var stringToUTF8Array = (str, heap, outIdx, maxBytesToWrite) => {
+  assert(typeof str === "string", `stringToUTF8Array expects a string (got ${typeof str})`);
+  // Parameter maxBytesToWrite is not optional. Negative values, 0, null,
+  // undefined and false each don't write out any bytes.
+  if (!(maxBytesToWrite > 0)) return 0;
+  var startIdx = outIdx;
+  var endIdx = outIdx + maxBytesToWrite - 1;
+  // -1 for string null terminator.
+  for (var i = 0; i < str.length; ++i) {
+    // For UTF8 byte structure, see http://en.wikipedia.org/wiki/UTF-8#Description
+    // and https://www.ietf.org/rfc/rfc2279.txt
+    // and https://tools.ietf.org/html/rfc3629
+    var u = str.codePointAt(i);
+    if (u <= 127) {
+      if (outIdx >= endIdx) break;
+      heap[outIdx++] = u;
+    } else if (u <= 2047) {
+      if (outIdx + 1 >= endIdx) break;
+      heap[outIdx++] = 192 | (u >> 6);
+      heap[outIdx++] = 128 | (u & 63);
+    } else if (u <= 65535) {
+      if (outIdx + 2 >= endIdx) break;
+      heap[outIdx++] = 224 | (u >> 12);
+      heap[outIdx++] = 128 | ((u >> 6) & 63);
+      heap[outIdx++] = 128 | (u & 63);
+    } else {
+      if (outIdx + 3 >= endIdx) break;
+      if (u > 1114111) warnOnce("Invalid Unicode code point " + ptrToString(u) + " encountered when serializing a JS string to a UTF-8 string in wasm memory! (Valid unicode code points should be in range 0-0x10FFFF).");
+      heap[outIdx++] = 240 | (u >> 18);
+      heap[outIdx++] = 128 | ((u >> 12) & 63);
+      heap[outIdx++] = 128 | ((u >> 6) & 63);
+      heap[outIdx++] = 128 | (u & 63);
+      // Gotcha: if codePoint is over 0xFFFF, it is represented as a surrogate pair in UTF-16.
+      // We need to manually skip over the second code unit for correct iteration.
+      i++;
+    }
+  }
+  // Null-terminate the pointer to the buffer.
+  heap[outIdx] = 0;
+  return outIdx - startIdx;
+};
+
+var stringToUTF8 = (str, outPtr, maxBytesToWrite) => {
+  assert(typeof maxBytesToWrite == "number", "stringToUTF8(str, outPtr, maxBytesToWrite) is missing the third parameter that specifies the length of the output buffer!");
+  return stringToUTF8Array(str, HEAPU8, outPtr, maxBytesToWrite);
+};
+
+var _environ_get = (__environ, environ_buf) => {
+  var bufSize = 0;
+  var envp = 0;
+  for (var string of getEnvStrings()) {
+    var ptr = environ_buf + bufSize;
+    SAFE_HEAP_STORE(HEAPU32, (((__environ) + (envp)) >> 2), ptr);
+    bufSize += stringToUTF8(string, ptr, Infinity) + 1;
+    envp += 4;
+  }
+  return 0;
+};
+
+var lengthBytesUTF8 = str => {
+  var len = 0;
+  for (var i = 0; i < str.length; ++i) {
+    // Gotcha: charCodeAt returns a 16-bit word that is a UTF-16 encoded code
+    // unit, not a Unicode code point of the character! So decode
+    // UTF16->UTF32->UTF8.
+    // See http://unicode.org/faq/utf_bom.html#utf16-3
+    var c = str.charCodeAt(i);
+    // possibly a lead surrogate
+    if (c <= 127) {
+      len++;
+    } else if (c <= 2047) {
+      len += 2;
+    } else if (c >= 55296 && c <= 57343) {
+      len += 4;
+      ++i;
+    } else {
+      len += 3;
+    }
+  }
+  return len;
+};
+
+var _environ_sizes_get = (penviron_count, penviron_buf_size) => {
+  var strings = getEnvStrings();
+  SAFE_HEAP_STORE(HEAPU32, ((penviron_count) >> 2), strings.length);
+  checkInt32(strings.length);
+  var bufSize = 0;
+  for (var string of strings) {
+    bufSize += lengthBytesUTF8(string) + 1;
+  }
+  SAFE_HEAP_STORE(HEAPU32, ((penviron_buf_size) >> 2), bufSize);
+  checkInt32(bufSize);
+  return 0;
+};
+
 var UTF8Decoder = typeof TextDecoder != "undefined" ? new TextDecoder : undefined;
 
 var findStringEnd = (heapOrArray, idx, maxBytesToRead, ignoreNul) => {
@@ -928,76 +1057,6 @@ var handleException = e => {
   quit_(1, e);
 };
 
-var lengthBytesUTF8 = str => {
-  var len = 0;
-  for (var i = 0; i < str.length; ++i) {
-    // Gotcha: charCodeAt returns a 16-bit word that is a UTF-16 encoded code
-    // unit, not a Unicode code point of the character! So decode
-    // UTF16->UTF32->UTF8.
-    // See http://unicode.org/faq/utf_bom.html#utf16-3
-    var c = str.charCodeAt(i);
-    // possibly a lead surrogate
-    if (c <= 127) {
-      len++;
-    } else if (c <= 2047) {
-      len += 2;
-    } else if (c >= 55296 && c <= 57343) {
-      len += 4;
-      ++i;
-    } else {
-      len += 3;
-    }
-  }
-  return len;
-};
-
-var stringToUTF8Array = (str, heap, outIdx, maxBytesToWrite) => {
-  assert(typeof str === "string", `stringToUTF8Array expects a string (got ${typeof str})`);
-  // Parameter maxBytesToWrite is not optional. Negative values, 0, null,
-  // undefined and false each don't write out any bytes.
-  if (!(maxBytesToWrite > 0)) return 0;
-  var startIdx = outIdx;
-  var endIdx = outIdx + maxBytesToWrite - 1;
-  // -1 for string null terminator.
-  for (var i = 0; i < str.length; ++i) {
-    // For UTF8 byte structure, see http://en.wikipedia.org/wiki/UTF-8#Description
-    // and https://www.ietf.org/rfc/rfc2279.txt
-    // and https://tools.ietf.org/html/rfc3629
-    var u = str.codePointAt(i);
-    if (u <= 127) {
-      if (outIdx >= endIdx) break;
-      heap[outIdx++] = u;
-    } else if (u <= 2047) {
-      if (outIdx + 1 >= endIdx) break;
-      heap[outIdx++] = 192 | (u >> 6);
-      heap[outIdx++] = 128 | (u & 63);
-    } else if (u <= 65535) {
-      if (outIdx + 2 >= endIdx) break;
-      heap[outIdx++] = 224 | (u >> 12);
-      heap[outIdx++] = 128 | ((u >> 6) & 63);
-      heap[outIdx++] = 128 | (u & 63);
-    } else {
-      if (outIdx + 3 >= endIdx) break;
-      if (u > 1114111) warnOnce("Invalid Unicode code point " + ptrToString(u) + " encountered when serializing a JS string to a UTF-8 string in wasm memory! (Valid unicode code points should be in range 0-0x10FFFF).");
-      heap[outIdx++] = 240 | (u >> 18);
-      heap[outIdx++] = 128 | ((u >> 12) & 63);
-      heap[outIdx++] = 128 | ((u >> 6) & 63);
-      heap[outIdx++] = 128 | (u & 63);
-      // Gotcha: if codePoint is over 0xFFFF, it is represented as a surrogate pair in UTF-16.
-      // We need to manually skip over the second code unit for correct iteration.
-      i++;
-    }
-  }
-  // Null-terminate the pointer to the buffer.
-  heap[outIdx] = 0;
-  return outIdx - startIdx;
-};
-
-var stringToUTF8 = (str, outPtr, maxBytesToWrite) => {
-  assert(typeof maxBytesToWrite == "number", "stringToUTF8(str, outPtr, maxBytesToWrite) is missing the third parameter that specifies the length of the output buffer!");
-  return stringToUTF8Array(str, HEAPU8, outPtr, maxBytesToWrite);
-};
-
 /** @suppress {duplicate } */ var stringToNewUTF8 = str => {
   var size = lengthBytesUTF8(str) + 1;
   var ret = _malloc(size);
@@ -1050,11 +1109,11 @@ var allocateUTF8 = stringToNewUTF8;
 // Begin runtime exports
 Module["UTF8ToString"] = UTF8ToString;
 
-var missingLibrarySymbols = [ "writeI53ToI64", "writeI53ToI64Clamped", "writeI53ToI64Signaling", "writeI53ToU64Clamped", "writeI53ToU64Signaling", "readI53FromI64", "readI53FromU64", "convertI32PairToI53", "convertI32PairToI53Checked", "convertU32PairToI53", "stackAlloc", "getTempRet0", "setTempRet0", "zeroMemory", "getHeapMax", "abortOnCannotGrowMemory", "growMemory", "withStackSave", "strError", "inetPton4", "inetNtop4", "inetPton6", "inetNtop6", "readSockaddr", "writeSockaddr", "readEmAsmArgs", "jstoi_q", "getExecutableName", "autoResumeAudioContext", "getDynCaller", "dynCall", "runtimeKeepalivePush", "runtimeKeepalivePop", "callUserCallback", "maybeExit", "asyncLoad", "asmjsMangle", "alignMemory", "mmapAlloc", "HandleAllocator", "getNativeTypeSize", "getUniqueRunDependency", "addRunDependency", "removeRunDependency", "addOnInit", "addOnPostCtor", "addOnPreMain", "addOnExit", "STACK_SIZE", "STACK_ALIGN", "POINTER_SIZE", "ASSERTIONS", "ccall", "cwrap", "convertJsFunctionToWasm", "getEmptyTableSlot", "updateTableMap", "getFunctionAddress", "addFunction", "removeFunction", "intArrayFromString", "intArrayToString", "AsciiToString", "stringToAscii", "UTF16ToString", "stringToUTF16", "lengthBytesUTF16", "UTF32ToString", "stringToUTF32", "lengthBytesUTF32", "stringToUTF8OnStack", "writeArrayToMemory", "registerKeyEventCallback", "maybeCStringToJsString", "findEventTarget", "getBoundingClientRect", "fillMouseEventData", "registerMouseEventCallback", "registerWheelEventCallback", "registerUiEventCallback", "registerFocusEventCallback", "fillDeviceOrientationEventData", "registerDeviceOrientationEventCallback", "fillDeviceMotionEventData", "registerDeviceMotionEventCallback", "screenOrientation", "fillOrientationChangeEventData", "registerOrientationChangeEventCallback", "fillFullscreenChangeEventData", "registerFullscreenChangeEventCallback", "JSEvents_requestFullscreen", "JSEvents_resizeCanvasForFullscreen", "registerRestoreOldStyle", "hideEverythingExceptGivenElement", "restoreHiddenElements", "setLetterbox", "softFullscreenResizeWebGLRenderTarget", "doRequestFullscreen", "fillPointerlockChangeEventData", "registerPointerlockChangeEventCallback", "registerPointerlockErrorEventCallback", "requestPointerLock", "fillVisibilityChangeEventData", "registerVisibilityChangeEventCallback", "registerTouchEventCallback", "fillGamepadEventData", "registerGamepadEventCallback", "registerBeforeUnloadEventCallback", "fillBatteryEventData", "registerBatteryEventCallback", "setCanvasElementSize", "getCanvasElementSize", "jsStackTrace", "getCallstack", "convertPCtoSourceLocation", "getEnvStrings", "checkWasiClock", "wasiRightsToMuslOFlags", "wasiOFlagsToMuslOFlags", "initRandomFill", "randomFill", "safeSetTimeout", "setImmediateWrapped", "safeRequestAnimationFrame", "clearImmediateWrapped", "registerPostMainLoop", "registerPreMainLoop", "getPromise", "makePromise", "idsToPromises", "makePromiseCallback", "ExceptionInfo", "findMatchingCatch", "Browser_asyncPrepareDataCounter", "getSocketFromFD", "getSocketAddress", "FS_createPreloadedFile", "FS_preloadFile", "FS_modeStringToFlags", "FS_getMode", "FS_stdin_getChar", "FS_mkdirTree", "_setNetworkCallback", "heapObjectForWebGLType", "toTypedArrayIndex", "webgl_enable_ANGLE_instanced_arrays", "webgl_enable_OES_vertex_array_object", "webgl_enable_WEBGL_draw_buffers", "webgl_enable_WEBGL_multi_draw", "webgl_enable_EXT_polygon_offset_clamp", "webgl_enable_EXT_clip_control", "webgl_enable_WEBGL_polygon_mode", "emscriptenWebGLGet", "computeUnpackAlignedImageSize", "colorChannelsInGlTextureFormat", "emscriptenWebGLGetTexPixelData", "emscriptenWebGLGetUniform", "webglGetUniformLocation", "webglPrepareUniformLocationsBeforeFirstUse", "webglGetLeftBracePos", "emscriptenWebGLGetVertexAttrib", "__glGetActiveAttribOrUniform", "writeGLArray", "registerWebGlEventCallback", "runAndAbortIfError", "ALLOC_NORMAL", "ALLOC_STACK", "allocate", "writeStringToMemory", "writeAsciiToMemory", "demangle", "stackTrace" ];
+var missingLibrarySymbols = [ "writeI53ToI64", "writeI53ToI64Clamped", "writeI53ToI64Signaling", "writeI53ToU64Clamped", "writeI53ToU64Signaling", "readI53FromI64", "readI53FromU64", "convertI32PairToI53", "convertI32PairToI53Checked", "convertU32PairToI53", "stackAlloc", "getTempRet0", "setTempRet0", "zeroMemory", "getHeapMax", "abortOnCannotGrowMemory", "growMemory", "withStackSave", "strError", "inetPton4", "inetNtop4", "inetPton6", "inetNtop6", "readSockaddr", "writeSockaddr", "readEmAsmArgs", "jstoi_q", "autoResumeAudioContext", "getDynCaller", "dynCall", "runtimeKeepalivePush", "runtimeKeepalivePop", "callUserCallback", "maybeExit", "asyncLoad", "asmjsMangle", "alignMemory", "mmapAlloc", "HandleAllocator", "getNativeTypeSize", "getUniqueRunDependency", "addRunDependency", "removeRunDependency", "addOnInit", "addOnPostCtor", "addOnPreMain", "addOnExit", "STACK_SIZE", "STACK_ALIGN", "POINTER_SIZE", "ASSERTIONS", "ccall", "cwrap", "convertJsFunctionToWasm", "getEmptyTableSlot", "updateTableMap", "getFunctionAddress", "addFunction", "removeFunction", "intArrayFromString", "intArrayToString", "AsciiToString", "stringToAscii", "UTF16ToString", "stringToUTF16", "lengthBytesUTF16", "UTF32ToString", "stringToUTF32", "lengthBytesUTF32", "stringToUTF8OnStack", "writeArrayToMemory", "registerKeyEventCallback", "maybeCStringToJsString", "findEventTarget", "getBoundingClientRect", "fillMouseEventData", "registerMouseEventCallback", "registerWheelEventCallback", "registerUiEventCallback", "registerFocusEventCallback", "fillDeviceOrientationEventData", "registerDeviceOrientationEventCallback", "fillDeviceMotionEventData", "registerDeviceMotionEventCallback", "screenOrientation", "fillOrientationChangeEventData", "registerOrientationChangeEventCallback", "fillFullscreenChangeEventData", "registerFullscreenChangeEventCallback", "JSEvents_requestFullscreen", "JSEvents_resizeCanvasForFullscreen", "registerRestoreOldStyle", "hideEverythingExceptGivenElement", "restoreHiddenElements", "setLetterbox", "softFullscreenResizeWebGLRenderTarget", "doRequestFullscreen", "fillPointerlockChangeEventData", "registerPointerlockChangeEventCallback", "registerPointerlockErrorEventCallback", "requestPointerLock", "fillVisibilityChangeEventData", "registerVisibilityChangeEventCallback", "registerTouchEventCallback", "fillGamepadEventData", "registerGamepadEventCallback", "registerBeforeUnloadEventCallback", "fillBatteryEventData", "registerBatteryEventCallback", "setCanvasElementSize", "getCanvasElementSize", "jsStackTrace", "getCallstack", "convertPCtoSourceLocation", "checkWasiClock", "wasiRightsToMuslOFlags", "wasiOFlagsToMuslOFlags", "initRandomFill", "randomFill", "safeSetTimeout", "setImmediateWrapped", "safeRequestAnimationFrame", "clearImmediateWrapped", "registerPostMainLoop", "registerPreMainLoop", "getPromise", "makePromise", "idsToPromises", "makePromiseCallback", "ExceptionInfo", "findMatchingCatch", "Browser_asyncPrepareDataCounter", "getSocketFromFD", "getSocketAddress", "FS_createPreloadedFile", "FS_preloadFile", "FS_modeStringToFlags", "FS_getMode", "FS_stdin_getChar", "FS_mkdirTree", "_setNetworkCallback", "heapObjectForWebGLType", "toTypedArrayIndex", "webgl_enable_ANGLE_instanced_arrays", "webgl_enable_OES_vertex_array_object", "webgl_enable_WEBGL_draw_buffers", "webgl_enable_WEBGL_multi_draw", "webgl_enable_EXT_polygon_offset_clamp", "webgl_enable_EXT_clip_control", "webgl_enable_WEBGL_polygon_mode", "emscriptenWebGLGet", "computeUnpackAlignedImageSize", "colorChannelsInGlTextureFormat", "emscriptenWebGLGetTexPixelData", "emscriptenWebGLGetUniform", "webglGetUniformLocation", "webglPrepareUniformLocationsBeforeFirstUse", "webglGetLeftBracePos", "emscriptenWebGLGetVertexAttrib", "__glGetActiveAttribOrUniform", "writeGLArray", "registerWebGlEventCallback", "runAndAbortIfError", "ALLOC_NORMAL", "ALLOC_STACK", "allocate", "writeStringToMemory", "writeAsciiToMemory", "demangle", "stackTrace" ];
 
 missingLibrarySymbols.forEach(missingLibrarySymbol);
 
-var unexportedSymbols = [ "run", "out", "err", "callMain", "abort", "wasmMemory", "wasmExports", "HEAPF64", "HEAP8", "HEAPU8", "HEAP16", "HEAPU16", "HEAP32", "HEAPU32", "HEAP64", "HEAPU64", "writeStackCookie", "checkStackCookie", "INT53_MAX", "INT53_MIN", "bigintToI53Checked", "stackSave", "stackRestore", "ptrToString", "exitJS", "ENV", "ERRNO_CODES", "DNS", "Protocols", "Sockets", "timers", "warnOnce", "readEmAsmArgsArray", "handleException", "keepRuntimeAlive", "wasmTable", "noExitRuntime", "addOnPreRun", "addOnPostRun", "freeTableIndexes", "functionsInTableMap", "setValue", "getValue", "PATH", "PATH_FS", "UTF8Decoder", "UTF8ArrayToString", "stringToUTF8Array", "stringToUTF8", "lengthBytesUTF8", "UTF16Decoder", "stringToNewUTF8", "JSEvents", "specialHTMLTargets", "findCanvasEventTarget", "currentFullscreenStrategy", "restoreOldWindowedStyle", "UNWIND_CACHE", "ExitStatus", "flush_NO_FILESYSTEM", "emSetImmediate", "emClearImmediate_deps", "emClearImmediate", "promiseMap", "uncaughtExceptionCount", "exceptionLast", "exceptionCaught", "Browser", "requestFullscreen", "requestFullScreen", "setCanvasSize", "getUserMedia", "createContext", "getPreloadedImageData__data", "wget", "SYSCALLS", "preloadPlugins", "FS_stdin_getChar_buffer", "FS_unlink", "FS_createPath", "FS_createDevice", "FS_readFile", "FS", "FS_root", "FS_mounts", "FS_devices", "FS_streams", "FS_nextInode", "FS_nameTable", "FS_currentPath", "FS_initialized", "FS_ignorePermissions", "FS_filesystems", "FS_syncFSRequests", "FS_readFiles", "FS_lookupPath", "FS_getPath", "FS_hashName", "FS_hashAddNode", "FS_hashRemoveNode", "FS_lookupNode", "FS_createNode", "FS_destroyNode", "FS_isRoot", "FS_isMountpoint", "FS_isFile", "FS_isDir", "FS_isLink", "FS_isChrdev", "FS_isBlkdev", "FS_isFIFO", "FS_isSocket", "FS_flagsToPermissionString", "FS_nodePermissions", "FS_mayLookup", "FS_mayCreate", "FS_mayDelete", "FS_mayOpen", "FS_checkOpExists", "FS_nextfd", "FS_getStreamChecked", "FS_getStream", "FS_createStream", "FS_closeStream", "FS_dupStream", "FS_doSetAttr", "FS_chrdev_stream_ops", "FS_major", "FS_minor", "FS_makedev", "FS_registerDevice", "FS_getDevice", "FS_getMounts", "FS_syncfs", "FS_mount", "FS_unmount", "FS_lookup", "FS_mknod", "FS_statfs", "FS_statfsStream", "FS_statfsNode", "FS_create", "FS_mkdir", "FS_mkdev", "FS_symlink", "FS_rename", "FS_rmdir", "FS_readdir", "FS_readlink", "FS_stat", "FS_fstat", "FS_lstat", "FS_doChmod", "FS_chmod", "FS_lchmod", "FS_fchmod", "FS_doChown", "FS_chown", "FS_lchown", "FS_fchown", "FS_doTruncate", "FS_truncate", "FS_ftruncate", "FS_utime", "FS_open", "FS_close", "FS_isClosed", "FS_llseek", "FS_read", "FS_write", "FS_mmap", "FS_msync", "FS_ioctl", "FS_writeFile", "FS_cwd", "FS_chdir", "FS_createDefaultDirectories", "FS_createDefaultDevices", "FS_createSpecialDirectories", "FS_createStandardStreams", "FS_staticInit", "FS_init", "FS_quit", "FS_findObject", "FS_analyzePath", "FS_createFile", "FS_createDataFile", "FS_forceLoadFile", "FS_createLazyFile", "FS_absolutePath", "FS_createFolder", "FS_createLink", "FS_joinPath", "FS_mmapAlloc", "FS_standardizePath", "MEMFS", "TTY", "PIPEFS", "SOCKFS", "tempFixedLengthArray", "miniTempWebGLFloatBuffers", "miniTempWebGLIntBuffers", "GL", "AL", "GLUT", "EGL", "GLEW", "IDBStore", "SDL", "SDL_gfx", "allocateUTF8OnStack", "print", "printErr", "jstoi_s" ];
+var unexportedSymbols = [ "run", "out", "err", "callMain", "abort", "wasmMemory", "wasmExports", "HEAPF64", "HEAP8", "HEAPU8", "HEAP16", "HEAPU16", "HEAP32", "HEAPU32", "HEAP64", "HEAPU64", "writeStackCookie", "checkStackCookie", "INT53_MAX", "INT53_MIN", "bigintToI53Checked", "stackSave", "stackRestore", "ptrToString", "exitJS", "ENV", "ERRNO_CODES", "DNS", "Protocols", "Sockets", "timers", "warnOnce", "readEmAsmArgsArray", "getExecutableName", "handleException", "keepRuntimeAlive", "wasmTable", "noExitRuntime", "addOnPreRun", "addOnPostRun", "freeTableIndexes", "functionsInTableMap", "setValue", "getValue", "PATH", "PATH_FS", "UTF8Decoder", "UTF8ArrayToString", "stringToUTF8Array", "stringToUTF8", "lengthBytesUTF8", "UTF16Decoder", "stringToNewUTF8", "JSEvents", "specialHTMLTargets", "findCanvasEventTarget", "currentFullscreenStrategy", "restoreOldWindowedStyle", "UNWIND_CACHE", "ExitStatus", "getEnvStrings", "flush_NO_FILESYSTEM", "emSetImmediate", "emClearImmediate_deps", "emClearImmediate", "promiseMap", "uncaughtExceptionCount", "exceptionLast", "exceptionCaught", "Browser", "requestFullscreen", "requestFullScreen", "setCanvasSize", "getUserMedia", "createContext", "getPreloadedImageData__data", "wget", "SYSCALLS", "preloadPlugins", "FS_stdin_getChar_buffer", "FS_unlink", "FS_createPath", "FS_createDevice", "FS_readFile", "FS", "FS_root", "FS_mounts", "FS_devices", "FS_streams", "FS_nextInode", "FS_nameTable", "FS_currentPath", "FS_initialized", "FS_ignorePermissions", "FS_filesystems", "FS_syncFSRequests", "FS_readFiles", "FS_lookupPath", "FS_getPath", "FS_hashName", "FS_hashAddNode", "FS_hashRemoveNode", "FS_lookupNode", "FS_createNode", "FS_destroyNode", "FS_isRoot", "FS_isMountpoint", "FS_isFile", "FS_isDir", "FS_isLink", "FS_isChrdev", "FS_isBlkdev", "FS_isFIFO", "FS_isSocket", "FS_flagsToPermissionString", "FS_nodePermissions", "FS_mayLookup", "FS_mayCreate", "FS_mayDelete", "FS_mayOpen", "FS_checkOpExists", "FS_nextfd", "FS_getStreamChecked", "FS_getStream", "FS_createStream", "FS_closeStream", "FS_dupStream", "FS_doSetAttr", "FS_chrdev_stream_ops", "FS_major", "FS_minor", "FS_makedev", "FS_registerDevice", "FS_getDevice", "FS_getMounts", "FS_syncfs", "FS_mount", "FS_unmount", "FS_lookup", "FS_mknod", "FS_statfs", "FS_statfsStream", "FS_statfsNode", "FS_create", "FS_mkdir", "FS_mkdev", "FS_symlink", "FS_rename", "FS_rmdir", "FS_readdir", "FS_readlink", "FS_stat", "FS_fstat", "FS_lstat", "FS_doChmod", "FS_chmod", "FS_lchmod", "FS_fchmod", "FS_doChown", "FS_chown", "FS_lchown", "FS_fchown", "FS_doTruncate", "FS_truncate", "FS_ftruncate", "FS_utime", "FS_open", "FS_close", "FS_isClosed", "FS_llseek", "FS_read", "FS_write", "FS_mmap", "FS_msync", "FS_ioctl", "FS_writeFile", "FS_cwd", "FS_chdir", "FS_createDefaultDirectories", "FS_createDefaultDevices", "FS_createSpecialDirectories", "FS_createStandardStreams", "FS_staticInit", "FS_init", "FS_quit", "FS_findObject", "FS_analyzePath", "FS_createFile", "FS_createDataFile", "FS_forceLoadFile", "FS_createLazyFile", "FS_absolutePath", "FS_createFolder", "FS_createLink", "FS_joinPath", "FS_mmapAlloc", "FS_standardizePath", "MEMFS", "TTY", "PIPEFS", "SOCKFS", "tempFixedLengthArray", "miniTempWebGLFloatBuffers", "miniTempWebGLIntBuffers", "GL", "AL", "GLUT", "EGL", "GLEW", "IDBStore", "SDL", "SDL_gfx", "allocateUTF8OnStack", "print", "printErr", "jstoi_s" ];
 
 unexportedSymbols.forEach(unexportedRuntimeSymbol);
 
@@ -1091,6 +1150,12 @@ var _y_engine_free = Module["_y_engine_free"] = makeInvalidEarlyAccess("_y_engin
 
 var _malloc = Module["_malloc"] = makeInvalidEarlyAccess("_malloc");
 
+var _y_engine_get_amplitude_response_svg = Module["_y_engine_get_amplitude_response_svg"] = makeInvalidEarlyAccess("_y_engine_get_amplitude_response_svg");
+
+var _y_engine_get_phase_response_svg = Module["_y_engine_get_phase_response_svg"] = makeInvalidEarlyAccess("_y_engine_get_phase_response_svg");
+
+var _y_engine_get_transfer_function_svg = Module["_y_engine_get_transfer_function_svg"] = makeInvalidEarlyAccess("_y_engine_get_transfer_function_svg");
+
 var _free = Module["_free"] = makeInvalidEarlyAccess("_free");
 
 var __initialize = Module["__initialize"] = makeInvalidEarlyAccess("__initialize");
@@ -1125,6 +1190,9 @@ function assignWasmExports(wasmExports) {
   Module["_y_optional_dsp_build_fn_free"] = _y_optional_dsp_build_fn_free = createExportWrapper("y_optional_dsp_build_fn_free", 1);
   Module["_y_engine_free"] = _y_engine_free = createExportWrapper("y_engine_free", 1);
   Module["_malloc"] = _malloc = createExportWrapper("malloc", 1);
+  Module["_y_engine_get_amplitude_response_svg"] = _y_engine_get_amplitude_response_svg = createExportWrapper("y_engine_get_amplitude_response_svg", 1);
+  Module["_y_engine_get_phase_response_svg"] = _y_engine_get_phase_response_svg = createExportWrapper("y_engine_get_phase_response_svg", 1);
+  Module["_y_engine_get_transfer_function_svg"] = _y_engine_get_transfer_function_svg = createExportWrapper("y_engine_get_transfer_function_svg", 1);
   Module["_free"] = _free = createExportWrapper("free", 1);
   Module["__initialize"] = __initialize = createExportWrapper("_initialize", 0);
   _strerror = createExportWrapper("strerror", 1);
@@ -1140,6 +1208,8 @@ function assignWasmExports(wasmExports) {
 
 var wasmImports = {
   /** @export */ alignfault,
+  /** @export */ environ_get: _environ_get,
+  /** @export */ environ_sizes_get: _environ_sizes_get,
   /** @export */ fd_close: _fd_close,
   /** @export */ fd_seek: _fd_seek,
   /** @export */ fd_write: _fd_write,
