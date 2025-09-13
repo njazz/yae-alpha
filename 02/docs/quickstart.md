@@ -12,13 +12,19 @@ This is a proof-of-concept / preview for a (not only) audio DSP language
 Use **@main** to define the main audio DSP Node:  
 
 _white noise_  
-```@main ~%```
+```module
+@main ~%
+```
 
 _silence_  
-```@main ~0```
+```module
+@main ~0
+```
 
 _440Hz sinewave_  
-```@main ~~440```
+```module
+@main ~~440
+```
 
 * * *
 
@@ -31,7 +37,9 @@ Connects output of NODE1 to input of NODE2
 **@\[ NODE1 NODE2 ... \]**
 
 _ring modulation_
-```@main @[ ~~345 ~*~~456 ]```
+```module
+@main @[ ~~345 ~*~~456 ]
+```
 
   
 **Parallel mix**  
@@ -40,7 +48,7 @@ Runs all nodes in parallel and sums output
 **@{ NODE1 NODE2 ... }**
 
 _additive synth with attenuation_
-```
+```module
 @main @[ 
 @{ 
  ~~234 
@@ -57,7 +65,7 @@ Runs all nodes in parallel, outputs a sum of output divided by node size
 **@/{ NODE1 NODE2 ... }**
 
 _additive synth with ring modulation_
-```
+```module
 @main @[ 
 @/{ ~~234 ~~345 ~~456 ~~567} 
 ~*@/{ ~~135 ~~246 ~~357 ~~468} 
@@ -71,7 +79,7 @@ Adds node output to its input + original input
 **@'~~L**
 
 _Some feedback FM_  
-```
+```module
 @main 
 @[
  @`@[~~L ~-_ ~*0.5 
@@ -99,7 +107,7 @@ and later use it:
 @main = nodeName()
 
 _group of examples_
-```
+```module
 @def ringMod() = @[ 
 ~~345 ~*~~456 ~*~%
 ]
