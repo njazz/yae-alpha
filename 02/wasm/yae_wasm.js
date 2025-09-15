@@ -1250,6 +1250,14 @@ var _y_engine_free = Module["_y_engine_free"] = makeInvalidEarlyAccess("_y_engin
 
 var _y_engine_set_toggle = Module["_y_engine_set_toggle"] = makeInvalidEarlyAccess("_y_engine_set_toggle");
 
+var _y_engine_set_button = Module["_y_engine_set_button"] = makeInvalidEarlyAccess("_y_engine_set_button");
+
+var _y_engine_set_meter_callback = Module["_y_engine_set_meter_callback"] = makeInvalidEarlyAccess("_y_engine_set_meter_callback");
+
+var _y_engine_set_led_callback = Module["_y_engine_set_led_callback"] = makeInvalidEarlyAccess("_y_engine_set_led_callback");
+
+var _y_engine_set_action_led_callback = Module["_y_engine_set_action_led_callback"] = makeInvalidEarlyAccess("_y_engine_set_action_led_callback");
+
 var _malloc = Module["_malloc"] = makeInvalidEarlyAccess("_malloc");
 
 var _y_engine_get_amplitude_response_svg = Module["_y_engine_get_amplitude_response_svg"] = makeInvalidEarlyAccess("_y_engine_get_amplitude_response_svg");
@@ -1262,13 +1270,13 @@ var _free = Module["_free"] = makeInvalidEarlyAccess("_free");
 
 var __initialize = Module["__initialize"] = makeInvalidEarlyAccess("__initialize");
 
-var _strerror = makeInvalidEarlyAccess("_strerror");
-
-var _sbrk = makeInvalidEarlyAccess("_sbrk");
-
 var _emscripten_stack_get_end = makeInvalidEarlyAccess("_emscripten_stack_get_end");
 
 var _emscripten_stack_get_base = makeInvalidEarlyAccess("_emscripten_stack_get_base");
+
+var _strerror = makeInvalidEarlyAccess("_strerror");
+
+var _sbrk = makeInvalidEarlyAccess("_sbrk");
 
 var _emscripten_get_sbrk_ptr = makeInvalidEarlyAccess("_emscripten_get_sbrk_ptr");
 
@@ -1292,16 +1300,20 @@ function assignWasmExports(wasmExports) {
   Module["_y_optional_dsp_build_fn_free"] = _y_optional_dsp_build_fn_free = createExportWrapper("y_optional_dsp_build_fn_free", 1);
   Module["_y_engine_free"] = _y_engine_free = createExportWrapper("y_engine_free", 1);
   Module["_y_engine_set_toggle"] = _y_engine_set_toggle = createExportWrapper("y_engine_set_toggle", 3);
+  Module["_y_engine_set_button"] = _y_engine_set_button = createExportWrapper("y_engine_set_button", 2);
+  Module["_y_engine_set_meter_callback"] = _y_engine_set_meter_callback = createExportWrapper("y_engine_set_meter_callback", 3);
+  Module["_y_engine_set_led_callback"] = _y_engine_set_led_callback = createExportWrapper("y_engine_set_led_callback", 3);
+  Module["_y_engine_set_action_led_callback"] = _y_engine_set_action_led_callback = createExportWrapper("y_engine_set_action_led_callback", 3);
   Module["_malloc"] = _malloc = createExportWrapper("malloc", 1);
   Module["_y_engine_get_amplitude_response_svg"] = _y_engine_get_amplitude_response_svg = createExportWrapper("y_engine_get_amplitude_response_svg", 1);
   Module["_y_engine_get_phase_response_svg"] = _y_engine_get_phase_response_svg = createExportWrapper("y_engine_get_phase_response_svg", 1);
   Module["_y_engine_get_transfer_function_svg"] = _y_engine_get_transfer_function_svg = createExportWrapper("y_engine_get_transfer_function_svg", 1);
   Module["_free"] = _free = createExportWrapper("free", 1);
   Module["__initialize"] = __initialize = createExportWrapper("_initialize", 0);
-  _strerror = createExportWrapper("strerror", 1);
-  _sbrk = createExportWrapper("sbrk", 1);
   _emscripten_stack_get_end = wasmExports["emscripten_stack_get_end"];
   _emscripten_stack_get_base = wasmExports["emscripten_stack_get_base"];
+  _strerror = createExportWrapper("strerror", 1);
+  _sbrk = createExportWrapper("sbrk", 1);
   _emscripten_get_sbrk_ptr = createExportWrapper("emscripten_get_sbrk_ptr", 0);
   _emscripten_stack_init = wasmExports["emscripten_stack_init"];
   _emscripten_stack_get_free = wasmExports["emscripten_stack_get_free"];
