@@ -1266,6 +1266,8 @@ var _y_engine_get_phase_response_svg = Module["_y_engine_get_phase_response_svg"
 
 var _y_engine_get_transfer_function_svg = Module["_y_engine_get_transfer_function_svg"] = makeInvalidEarlyAccess("_y_engine_get_transfer_function_svg");
 
+var _y_macro_simple_graph = Module["_y_macro_simple_graph"] = makeInvalidEarlyAccess("_y_macro_simple_graph");
+
 var _free = Module["_free"] = makeInvalidEarlyAccess("_free");
 
 var __initialize = Module["__initialize"] = makeInvalidEarlyAccess("__initialize");
@@ -1308,6 +1310,7 @@ function assignWasmExports(wasmExports) {
   Module["_y_engine_get_amplitude_response_svg"] = _y_engine_get_amplitude_response_svg = createExportWrapper("y_engine_get_amplitude_response_svg", 1);
   Module["_y_engine_get_phase_response_svg"] = _y_engine_get_phase_response_svg = createExportWrapper("y_engine_get_phase_response_svg", 1);
   Module["_y_engine_get_transfer_function_svg"] = _y_engine_get_transfer_function_svg = createExportWrapper("y_engine_get_transfer_function_svg", 1);
+  Module["_y_macro_simple_graph"] = _y_macro_simple_graph = createExportWrapper("y_macro_simple_graph", 1);
   Module["_free"] = _free = createExportWrapper("free", 1);
   Module["__initialize"] = __initialize = createExportWrapper("_initialize", 0);
   _emscripten_stack_get_end = wasmExports["emscripten_stack_get_end"];
