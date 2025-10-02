@@ -1316,6 +1316,14 @@ var _y_engine_get_transfer_function_svg = Module["_y_engine_get_transfer_functio
 
 var _y_macro_simple_graph = Module["_y_macro_simple_graph"] = makeInvalidEarlyAccess("_y_macro_simple_graph");
 
+var _y_get_probe_names = Module["_y_get_probe_names"] = makeInvalidEarlyAccess("_y_get_probe_names");
+
+var _y_get_probe_name_count = Module["_y_get_probe_name_count"] = makeInvalidEarlyAccess("_y_get_probe_name_count");
+
+var _y_get_probe_by_index = Module["_y_get_probe_by_index"] = makeInvalidEarlyAccess("_y_get_probe_by_index");
+
+var _y_get_probe_by_name = Module["_y_get_probe_by_name"] = makeInvalidEarlyAccess("_y_get_probe_by_name");
+
 var _free = Module["_free"] = makeInvalidEarlyAccess("_free");
 
 var __initialize = Module["__initialize"] = makeInvalidEarlyAccess("__initialize");
@@ -1361,6 +1369,10 @@ function assignWasmExports(wasmExports) {
   Module["_y_engine_get_phase_response_svg"] = _y_engine_get_phase_response_svg = createExportWrapper("y_engine_get_phase_response_svg", 1);
   Module["_y_engine_get_transfer_function_svg"] = _y_engine_get_transfer_function_svg = createExportWrapper("y_engine_get_transfer_function_svg", 1);
   Module["_y_macro_simple_graph"] = _y_macro_simple_graph = createExportWrapper("y_macro_simple_graph", 1);
+  Module["_y_get_probe_names"] = _y_get_probe_names = createExportWrapper("y_get_probe_names", 2);
+  Module["_y_get_probe_name_count"] = _y_get_probe_name_count = createExportWrapper("y_get_probe_name_count", 1);
+  Module["_y_get_probe_by_index"] = _y_get_probe_by_index = createExportWrapper("y_get_probe_by_index", 5);
+  Module["_y_get_probe_by_name"] = _y_get_probe_by_name = createExportWrapper("y_get_probe_by_name", 5);
   Module["_free"] = _free = createExportWrapper("free", 1);
   Module["__initialize"] = __initialize = createExportWrapper("_initialize", 0);
   _emscripten_stack_get_end = wasmExports["emscripten_stack_get_end"];
