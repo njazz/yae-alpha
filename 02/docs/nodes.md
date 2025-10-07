@@ -37,6 +37,47 @@
 ```~|L```
 ```SquareCVLin()```
 
+**white noise generator / 8 bit precision**
+
+```~%8```
+
+**white noise generator / 16 bit precision**
+
+```~%16```
+
+**white noise generator / 24 bit precision**
+
+```~%24```
+
+**white noise generator / 32 bit precision**
+
+```~%32```
+
+**chaotic generator: logistic map**
+
+```~logistic```
+```LogisticMap()```
+
+**chaotic generator: tent map**
+
+```~tent```
+```TentMap()```
+
+**chaotic generator: Lorenz attractor**
+
+```~lorenz```
+```LorenzAttractor()```
+
+**chaotic generator: Rossler attractor**
+
+```~rossler```
+```RosslerAttractor()```
+
+**chaotic generator: Chuas Circuit**
+
+```~chuas```
+```ChuasCircuit()```
+
 **add constant or other node output**
 
 ```~+100```
