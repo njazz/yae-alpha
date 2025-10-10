@@ -1324,6 +1324,12 @@ var _y_get_probe_by_index = Module["_y_get_probe_by_index"] = makeInvalidEarlyAc
 
 var _y_get_probe_by_name = Module["_y_get_probe_by_name"] = makeInvalidEarlyAccess("_y_get_probe_by_name");
 
+var _t_y_probe_get_data = Module["_t_y_probe_get_data"] = makeInvalidEarlyAccess("_t_y_probe_get_data");
+
+var _t_y_probe_get_size = Module["_t_y_probe_get_size"] = makeInvalidEarlyAccess("_t_y_probe_get_size");
+
+var _t_y_probe_data_free = Module["_t_y_probe_data_free"] = makeInvalidEarlyAccess("_t_y_probe_data_free");
+
 var _free = Module["_free"] = makeInvalidEarlyAccess("_free");
 
 var __initialize = Module["__initialize"] = makeInvalidEarlyAccess("__initialize");
@@ -1371,8 +1377,11 @@ function assignWasmExports(wasmExports) {
   Module["_y_macro_simple_graph"] = _y_macro_simple_graph = createExportWrapper("y_macro_simple_graph", 1);
   Module["_y_get_probe_names"] = _y_get_probe_names = createExportWrapper("y_get_probe_names", 2);
   Module["_y_get_probe_name_count"] = _y_get_probe_name_count = createExportWrapper("y_get_probe_name_count", 1);
-  Module["_y_get_probe_by_index"] = _y_get_probe_by_index = createExportWrapper("y_get_probe_by_index", 5);
-  Module["_y_get_probe_by_name"] = _y_get_probe_by_name = createExportWrapper("y_get_probe_by_name", 5);
+  Module["_y_get_probe_by_index"] = _y_get_probe_by_index = createExportWrapper("y_get_probe_by_index", 4);
+  Module["_y_get_probe_by_name"] = _y_get_probe_by_name = createExportWrapper("y_get_probe_by_name", 4);
+  Module["_t_y_probe_get_data"] = _t_y_probe_get_data = createExportWrapper("t_y_probe_get_data", 1);
+  Module["_t_y_probe_get_size"] = _t_y_probe_get_size = createExportWrapper("t_y_probe_get_size", 1);
+  Module["_t_y_probe_data_free"] = _t_y_probe_data_free = createExportWrapper("t_y_probe_data_free", 1);
   Module["_free"] = _free = createExportWrapper("free", 1);
   Module["__initialize"] = __initialize = createExportWrapper("_initialize", 0);
   _emscripten_stack_get_end = wasmExports["emscripten_stack_get_end"];
