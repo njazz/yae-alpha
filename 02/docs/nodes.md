@@ -1,6 +1,4 @@
-**white noise generator**
-
-```~%```
+## oscillators
 
 **zero generator**
 
@@ -37,6 +35,8 @@
 ```~|L```
 ```SquareCVLin()```
 
+## noise
+
 **white noise generator / 8 bit precision**
 
 ```~%8```
@@ -52,6 +52,8 @@
 **white noise generator / 32 bit precision**
 
 ```~%32```
+
+## chaotic
 
 **chaotic generator: logistic map**
 
@@ -78,6 +80,8 @@
 ```~chuas```
 ```ChuasCircuit()```
 
+## math
+
 **add constant or other node output**
 
 ```~+100```
@@ -98,6 +102,48 @@
 ```~/100```
 ```~/~~100```
 
+## logic
+
+**Less than constant (outputs 0 or 1)**
+
+```Lt(0.5)```
+
+**Greater than constant (outputs 0 or 1)**
+
+```Gt(0.5)```
+
+## unary
+
+**hyperbolic tangent shaper**
+
+```~~tanh```
+```Tanh()```
+
+**Clip in -1..1 range**
+
+```ClipFS()```
+
+**input ^ power**
+
+```~pow()```
+```Pow()```
+
+**Bipolar value (-1..1) input ^ power waveshaper**
+
+```~bippow()```
+```BipPow()```
+
+**Sign**
+
+```~sign```
+
+**Absolute value**
+
+```~abs```
+```Abs()```
+
+## filters
+
 **filter: 2-pole lowpass \[WIP\]**
 
 ```Lp12(100,0.71)```
@@ -117,6 +163,8 @@
 
 ```Notch12(100,0.71)```
 ```~notch12(100,0.71)```
+
+## converters
 
 **Bipolar signal (-1..1) to unipolar (0..1)**
 
@@ -144,40 +192,59 @@
 
 ```~cv_```
 
-**hyperbolic tangent shaper**
+**Bipolar signal (-1..1) to dB**  
+  
+```BipTodB()```
+```~-db```
 
-```~~tanh```
-```Tanh()```
+**dB to Bipolar signal (-1..1)**  
+  
+```dBToBip()```
+```~db-```
 
-**Clip in -1..1 range**
+**Unipolar signal (0..1) to range**  
+  
+```~_r(0,2)```
+```UniToRange(0,2)```
 
-```ClipFS()```
+**Bipolar signal (-1..1) to range**  
+  
+```~_r(0,2)```
+```BipToRange(0,2)```
 
-**Less than constant (outputs 0 or 1)**
+**Range to unipolar signal (0..1)**  
+  
+```~r_(0,2)```
+```RangeToUni(0,2)```
 
-```Lt(0.5)```
+**Range to bipolar signal (-1..1)**  
+  
+```~_r(0,2)```
+```RangeToBip(0,2)```
 
-**Greater than constant (outputs 0 or 1)**
+**scale range (a..b) to (c..d)**  
+  
+```~rr(-2,2,0,2)```
+```Scale(0,2)```
 
-```Gt(0.5)```
-
-**Envelope follower: attack/decay (ms)**
-
-```~envf(1,100)```
-```EnvFollow(1,100)```
+## fx
 
 **Sample-and-hold: ratio**
 
+```SAH(2)```
 ```~sah(2)```
 
 **Frequency shifter: freq**
 
+```Shift(100)```
 ```~shift(100)```
 
 **Delay: seconds**
 
 ```Delay(1)```
 ```~del(1)```
+
+## spatialisation
 
 **Evenly place mono channels across stereo output using linear panning:**
 
@@ -190,6 +257,8 @@
 **Place mono channel in stereo field with cosine panning function (0..1)**
 
 ```~pancos(0.1){~%}```
+
+## buffer
 
 **Minimum value in the buffer**
 
@@ -235,9 +304,19 @@
 
 ```BCrest()```
 
+## envelopes
+
 **ADSR envelope: using input as gate \[WIP\]**
 
 ```ADSR(0.005 0.02 0.0 0.0)```
+
+**Envelope follower: attack/decay (ms)**
+
+```~envf(1,100)```
+```EnvFollow(1,100)```
+
+## analysis
+
 
 **RMS calculation \[WIP - currently fixed 512 sample frame\]**
 
@@ -249,7 +328,11 @@
 ```ZCR()```
 ```~zcr```
 
-* * *
+**EMA**
+
+```EMA(100)```
+
+## fft
 
 **Run an FFT block \[WIP currently fixed 512 samples size and no windowing\]**
 
@@ -282,3 +365,9 @@
 
 ```.ToCar()```
 ```.ToCar```
+
+## debug
+
+**Node -> Main oscilloscope**
+```@??```
+
