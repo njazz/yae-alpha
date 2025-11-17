@@ -10,30 +10,53 @@
 ```~~100```
 ```Sine(100)```
 
-**oscillator: saw**
+**oscillator: saw [a: anti-aliased]**
 
 ```~\100```
 ```Saw(100)```
+```~\a100```
+```SawAA(100)```
 
-**oscillator: square**
+**oscillator: square [a: anti-aliased]**
 
 ```~|100```
 ```Square(100)```
+```~|a100```
+```SquareAA(100)```
+
+**oscillator: triangle [a: anti-aliased]**
+
+```~^100```
+```Triangle(100)```
+```~^a100```
+```TriangleAA(100)```
+
 
 **oscillator: sine with input scaled to CV (0..10) mapped to 0..SR/2**
 
 ```~~L```
 ```SineCVLin()```
 
-**oscillator: saw with input scaled to CV (0..10) mapped to 0..SR/2**
+**oscillator: saw with input scaled to CV (0..10) mapped to 0..SR/2 [a: anti-aliased]**
 
 ```~\L```
 ```SawCVLin()```
+```~\aL```
+```SawAACVLin()```
 
-**oscillator: square with input scaled to CV (0..10) mapped to 0..SR/2**
+**oscillator: square with input scaled to CV (0..10) mapped to 0..SR/2 [a: anti-aliased]**
 
 ```~|L```
 ```SquareCVLin()```
+```~|aL```
+```SquareAACVLin()```
+
+**oscillator: triangle with input scaled to CV (0..10) mapped to 0..SR/2 [a: anti-aliased]**
+
+```~^L```
+```TriangleCVLin()```
+```~^aL```
+```TriangleAACVLin()```
 
 ## noise
 
