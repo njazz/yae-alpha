@@ -67,80 +67,73 @@ Runs all nodes in parallel, outputs a sum of output divided by node size
 _additive synth with ring modulation_
 
 ```module
-#dsp @[ 
-@/{ ~~234 ~~345 ~~456 ~~567} 
-~*@/{ ~~135 ~~246 ~~357 ~~468} 
+#dsp ~[ 
+~/{ ~~234 ~~345 ~~456 ~~567} 
+~*~/{ ~~135 ~~246 ~~357 ~~468} 
 ~*0.25 
-]
+];
 ```
 
 **Simple feedback**  
 Adds node output to its input + original input
 
 ```module
-**@'~~L**
+#dsp ~[~`~~L ~*0.1];
 ```
 
 _Some feedback FM_  
 ```module
-#dsp 
-@[
- @`@[~~L ~-_ ~*0.5 
-  @/{
-   @[
-    ~*@[~~100 ~~L] 
+#dsp ~[
+ ~`~[~~L ~-_ ~*0.5 
+  ~/{
+   ~[
+    ~*~[~~100 ~~L] 
     ~*~~2.2
     ]
-   @[@`~~L]} 
+   ~[~`~~L]} 
   ] 
  ~*1.0 
-]
+];
 ```
 
 * * *
 
 ##### Node definitions
 
-You can define your node like that:
+You can define your node and re-use it later:
 
 ```module
-let nodeName() = // ...
+let nodeName() = ~%; #dsp nodeName; // ...
 ```
 
 Arguments are optional:
 ```module
-let nodeName = // ...
-```
-
-and later use it:  
-
-```module
-dsp nodeName()
+let nodeName = ~0; #dsp nodeName; // ...
 ```
 or
 ```module
-dsp nodeName
+let nodeName() = ~0; #dsp nodeName(); // ...
 ```
 
 _group of examples_
 ```module
-let ringMod() = @[ 
+let ringmod = ~[ 
 ~~345 ~*~~456 ~*~%
 ];
 
-let additive() =  @[ 
- @/{
+let additive =  ~[ 
+ ~/{
   ~~0.234 ~~0.345 
   ~~0.456 ~~0.567
  } 
- ~*@/{
+ ~*~/{
   ~~11.35 ~~12.46 
   ~~13.57 ~~14.68
   } 
  ~*2.5 
 ];
 
-#dsp @[ringMod() ~*additive()];
+#dsp ~[ringmod ~*additive];
 ```  
 
 * * *
@@ -216,19 +209,19 @@ let sines() =  @[~+/{@[v1() ~*~~0.3] @[v2() ~*~~0.1]} ~*0.1 @[~~L] ];
 
 01 Rhythmic Synth  
 ```module
-let s1() = @[ Saw(1.42) ~-_ Lt(0.1) ]
-let s2() = @[ Saw(2.85) ~-_ Lt(0.1) ]
+let s1 = ~[ Saw(1.42) ~-_ Lt(0.1) ];
+let s2 = ~[ Saw(2.85) ~-_ Lt(0.1) ];
 
-let e1() = @[ s1()  ~*0.5 ~~L ~*10]
-let e2() = @[ s2()  ~*0.6 ~~L]
+let e1 = ~[ s1  ~*0.5 ~~L ~*10];
+let e2 = ~[ s2  ~*0.6 ~~L];
 
-let syn() = @[ 
-    @`@/{ 
-        @[ ~tanh s1() ~*@[ e1() ]]
-        @[  ~tanh s2() ~*@[ e2() ]]
-        } ~*~|1000 ~*0.2   ]
+let syn = ~[ 
+    ~`~/{ 
+        ~[ ~tanh s1 ~*~[ e1 ]]
+        ~[  ~tanh s2 ~*~[ e2 ]]
+        } ~*~|1000 ~*0.2   ];
 
-#dsp syn()
+#dsp syn;
 ```
 
 02 Ambient
@@ -358,18 +351,18 @@ let fftNoise() = @[~|33 @`~fft[.In() .ToCar() .Out() ] ~*~\100 ~*0.1]
 
 05 Another Rhythm
 ```module
-let sync() = @{~\1.0 @[~% ~*0.2]}
-let sync2() = @{~\7.0 @[~% ~*0.25]}
+let sync1 = ~{~\1.0 ~[~% ~*0.2]};
+let sync2 = ~{~\7.0 ~[~% ~*0.25]};
 
-let syn1() = @[ @/{ @[~|34.5 ~*~% ~~L] ~~65.4 ~~750} ~*@[~% ~*0.01 ~~L ~tanh] ]
-let r1() = @[ sync() Lt(0.1) ADSR(0.035 0.03 0.0 0.0) ]
-let rs1() = @[ syn1() ~*r1()]
+let syn1 = ~[ ~/{ ~[~|34.5 ~*~% ~~L] ~~65.4 ~~750.0} ~*~[~% ~*0.01 ~~L ~tanh] ];
+let r1 = ~[ sync1 Lt(0.1) ]; //ADSR(0.035 0.03 0.0 0.0) ];
+let rs1 = ~[ syn1 ~*r1];
 
-let syn2() = @[ @[ @/{ ~|75.6 ~~126.8 @[~~1203 ~*~% ] } ~tanh]  ~*@[~% ~*0.04 ~~L ] ]
-let r2() = @[ sync2() Lt(0.1) ADSR(0.035 0.03 0.0 0.0) ]
-let rs2() = @[ syn2() ~*r2()]
+let syn2 = ~[ ~[ ~/{ ~|75.6 ~~126.8 ~[~~1203.0 ~*~% ] } ~tanh]  ~*~[~% ~*0.04 ~~L ] ];
+let r2 = ~[ sync2 Lt(0.1) ]; //ADSR(0.035 0.03 0.0 0.0) ];
+let rs2 = ~[syn2 ~*r2];
 
-#dsp @/{rs1() rs2()}
+#dsp ~/{rs1 rs2};
 ```
 
 06 Ambient 2
@@ -420,6 +413,346 @@ c2()
 @[~\802 ~*@[~~-0.13 ~-_] ~hp12(50,0.1) ~lp12(1700,0.1) ~*2.0 ~tanh c2()]
 } ~tanh ~*0.25]
 ```
+
+* * *
+
+### Syntax overview  
+
+Full language syntax is defined by procedural macros.  
+It is done by set external modules or as macro:  
+PEG builder -> object builder
+
+### Keywords
+
+**keyword** is always a convention.  
+
+**NB** currently macro name \__NAME would be accessible as NAME kword  
+
+### Modules
+
+Currently the root library is supposed to implicitly loaded all time:  
+```import "builtin";```
+
+list of modules:  
+
+- core  
+- core/let
+- core/data
+- core/new
+- core/macros
+- core/literals
+- core/repl
+- core/adt
+- dsp
+- ui
+
+### Containers
+
+**• NB •** array and map ctors for variables are using \[,\] syntax, {} is reserved for some code block
+i.e:
+```
+let freqs = [1, 2, 3]
+let map = ["a":1, "b":2]
+```
+
+Note commas here, but ```dsp ~[Sine() Tanh()];``` sequence is with spaces.
+
+### General syntax
+
+```EXPRESSION ; [EXPRESSION ; ...]```  
+
+**• NB •** semicolons are required
+
+Internally, every expression is a ()->T builder (except literals returning T value, to be fixed later)
+
+### Commonly used tokens
+
+( ) node args  
+{ } node contents 
+= definition  
+-> macro binding  
+_ default value in expression rhs
+
+--- 
+
+#### ••• lib: core 
+
+#### import  
+
+```import STRING_LITERAL;```
+
+```import "builtin";``` 
+ 
+#### macro  
+
+TODO: macro syntax
+
+```
+// 1. PEG -> Builder syntax
+macro {
+  "test"
+  ->
+  ~100.0
+};
+```
+
+```macro Macro1(arg) { "Test" -> SineOsc(441) };```
+
+TODO:
+```
+// 2. let-like syntax:
+macro name(arg1 [,...]) { ~*arg1}
+```
+
+---  
+
+#### ••• lib: core/let 
+
+Next level is "core" library with the actual language features
+
+#### let
+
+This is a constant definition. 
+
+```let node(arg1) = SineOsc(arg1);```
+
+let defines auto-generated PEG & output
+More like a "compile-time" macro
+
+uses code block and outputs last expression
+
+```let fn(arg1) { let synth = SineOsc(arg) >> ~*0.5; synth; }```
+
+**• NB •**
+expands to internal ```#_push_block / #_pop_block```
+
+expands to some code block object:
+
+```struct Block(ReturnType, e) { elements:Vector(AnyBuilder) = e; }```
+
+that returns ReturnType builder  
+**• NB •** needs clear Any* in host api
+
+---  
+
+#### ••• lib:  core/data 
+
+Custom data structures and reactive bindings  
+
+##### struct  
+**• NB •** this is a type definition
+
+```
+struct Example(arg1 [:Type] [,...]) { 
+  public d1 : DSP; 
+  var f1: Float = arg1 
+};
+```
+
+examples
+alias (as it uses PEG):
+```let T2 = Example```
+
+all current DSP nodes are builder objects returning AnyDSPNode  
+for custom type:  
+
+```let E1 = build Example```  
+
+so E1 is now ()->Example  
+
+```let Instance1 = new Example```  
+```let Instance1 = Example();```  
+
+**• NB •** dot operator? operator=? minimal operator set
+
+**• NB •** vectors and maps?
+
+##### var   
+T  
+_mutable_
+
+##### public  
+
+reactive Value<T>   
+_mutable_  
+    
+##### binding   
+
+reactive Binding<T>   
+_mutable_   
+
+
+**• NB •** get Binding<T> by referencing Value<T> with \$:  
+
+```
+// system-defined
+public F0 : Float = 0;
+
+let DSP = ~$F0;
+```
+
+---   
+
+#### ••• lib: core/new   
+
+##### new  
+
+##### builder  
+
+---
+
+#### ••• lib: core/macros  
+
+```#dsp``` -> ```let DSP = ```  
+```#par``` -> ```let Par = ```  
+```#ui``` -> ```let UI =```  
+
+---
+
+**• NB •** some kind of sequence of action, probably using {} node contents:
+
+```
+let Op1(e: Example) { 
+e.f1 = 1;
+};
+```
+
+
+**macro**  
+
+definition  
+
+**• NB •** macro expansion: #macro_name or #macro_name(args...)  
+
+**• NB •** current macro system is PEG -> any builder
+expand for simple c-like macros:
+
+```
+#macro { parser.Match("dsp") >> parser.AnyExpression() -> eval("let DSP = " + args[1]) };
+```
+
+**• NB •** later PEG -> AST macros
+
+**• NB •** TODO:  
+
+```
+#fb(args...) -> { let arg = Feedback(); [contents] }  
+```
+
+---
+
+#### ••• lib: core / literals
+
+**• NB •** those usually return constant T values, not builders
+
+123 / 123.456 
+number, returns Int or Float constant value
+
+"String" 
+string literal, returns String
+
+\$varname binding
+
+ident identifier / quote when in a definition
+
+---
+
+#### ••• lib: core/repl
+
+```#repl (tag) {...} ```
+always run / update when this part is edited
+
+```#scope (tag) {...} ```
+manually callable, excluded in non-repl mode
+
+```#eval (tag) ```
+runs existing named scope here
+
+```##(tag) {...} manually callable ```
+```###(tag) {...} repl ```
+
+no tag will reference as line number
+
+Traditional ctrl+enter: add #scope {} and run
+
+short repl, eval, scope
+
+```
+repl("main") {
+  // runs on edit
+}
+
+scope("init") {
+  // callable manually
+}
+
+eval "init"   // evaluate named scope inline
+```
+
+---
+
+#### ••• lib: core/adt
+
+```
+type Name(params...) {
+    Variant(fields...);
+    Variant2(fields...);
+}
+```
+
+```
+type Maybe(T) {
+    None;
+    Some(value:T): Type = T(value);
+}
+```
+
+```
+let v = Maybe<Float>.Some(10);
+```
+
+---
+
+#### ••• lib: dsp 
+
+**dsp composition tokens**  
+~\[...] sequence  
+~/{...} parallel  
+~/{...} parallel -> average  
+~+\{...} parallel - mix  
+~-{...} parallel subtract  
+~\*{...}  
+~/{...}  
+~\`... One-sample feedback   
+~\`\`... Block-sized feedback  
+~0.0 / ~$... Constant float / Binding\<float\>  
+
+**DSP infix ops**
+
+```A >> B``` 
+output a -> input b
+
+```A << B```
+output b -> input a
+NB: is not needed?
+
+```+ - * /``` same ase ~+{} etc
+
+---
+
+#### ••• lib: dsp/probe
+
+DSP Scope probe
+
+```#?(name) probe ```
+
+```#?("name with spaces") ```
+
+```#?? default probe ```
+
+uses last one in source code
+if not defined, there is somewhat like '#??DSP' internally, implicitly, i.e:
+```let DSP = #??[ user code...]```
 
 * * *
 
