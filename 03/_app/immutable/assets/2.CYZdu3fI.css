@@ -1,0 +1,246 @@
+
+  container {
+    width: 100%;
+    background: #2e2e2e;
+    color: #fff;
+    padding: 10px;
+    font-family: monospace;
+    overflow-y: auto;
+  }
+
+  .empty.svelte-147uo3u {
+    min-height: 100px;
+  }
+
+  grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 16px;
+  }
+
+  .plot-box.svelte-147uo3u {
+    border: 1px solid #555;
+    border-radius: 4px;
+    padding: 8px;
+    width: 94%;
+    display: flex;  
+  }
+
+  button-active {
+     background-color: #ffc55e!important; /* or any "active" color */
+  }
+
+  .tab.svelte-a06ch2 {
+    display: inline-flex;
+    align-items: center;
+    background-color: #333;
+    color: #fff;
+    border-radius: 4px 4px 0 0;
+    padding: 4px;
+    padding-left: 8px;
+    padding-right: 16px;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.4);
+    height: 32px;
+    margin-top: 2px;
+    margin-bottom: -2px;
+    font-family: Avenir, Arial, sans-serif;
+  }
+
+  .actions.svelte-a06ch2 {
+    display: inline-flex;
+    gap: 8px;
+  }
+
+  .text.svelte-a06ch2 {
+    font-size: 14px;
+    font-weight: 500;
+    margin-left: 12px;
+  }
+
+  .root.svelte-1fbx6nu {
+    position: relative;
+    display: inline-block;
+  }
+
+  .trigger.svelte-1fbx6nu {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    background: #333;
+    border: none;
+    color: white;
+    cursor: pointer;
+    transition: 0.15s;
+  }
+
+  .label.svelte-1fbx6nu {
+    font-size: 14px;
+  }
+
+  svg.svelte-1fbx6nu {
+    transition: transform 0.15s;
+  }
+
+  .rotated.svelte-1fbx6nu {
+    transform: rotate(180deg);
+  }
+
+  .menu.svelte-1fbx6nu {
+    position: absolute;
+    top: calc(100% + 3px);
+    min-width: 200px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+    border-radius: 8px;
+    background: #444;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    padding: 4px;
+    z-index: 60;
+  }
+
+  .item.svelte-1fbx6nu {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 10px;
+    cursor: pointer;
+    border-radius: 6px;
+    user-select: none;
+    color: white;
+    font-size: 13px;
+    transition: background 0.1s;
+  }
+
+  .item.disabled.svelte-1fbx6nu {
+    cursor: not-allowed;
+    opacity: 0.5;
+    color: rgba(255, 255, 255, 0.5);
+  }
+
+  .shortcut.svelte-1fbx6nu {
+    font-size: 12px;
+    opacity: 0.6;
+  }
+
+  .checkbox.svelte-1fbx6nu {
+    width: 14px;
+    height: 14px;
+    display: inline-block;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 2px;
+  }
+
+  .checkbox.checked.svelte-1fbx6nu {
+    background: #8033ff;
+  }
+
+  .viz.svelte-t60k18 {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+
+  canvas.svelte-t60k18 {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .spectrogram.svelte-t60k18 {
+    z-index: 1;
+  }
+
+  .scope.svelte-t60k18 {
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  .app.svelte-1j2rmt2 {
+    display: flex;
+    flex-direction: column;
+    width: 100vw;
+    height: 100vh;
+    background: #222;
+    color: #fff;
+  }
+
+  .topbar.svelte-1j2rmt2 {
+    display: flex;
+    padding: 6px;
+    border-bottom: 1px solid #555;
+  }
+
+  .left.svelte-1j2rmt2 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-right: 1px solid #333;
+  }
+
+  .brand.svelte-1j2rmt2 {
+    font-weight: 700;
+    text-decoration: none;
+    color: #ccf;
+  }
+
+  .menus.svelte-1j2rmt2 {
+    display: flex;
+    gap: 8px;
+    margin-left: 8px;
+  }
+
+  .status.svelte-1j2rmt2 {
+    margin-left: 20px;
+    font-family: monospace;
+    color: #0f0;
+  }
+
+  .main.svelte-1j2rmt2 {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  .sidebar.svelte-1j2rmt2 {
+    width: 240px;
+    height: 100%;
+    overflow: auto;
+    padding: 4px;
+    background: #222;
+  }
+
+  .right.svelte-1j2rmt2 {
+    border-left: 1px solid #333;
+    width: 320px;
+  }
+
+  .center.svelte-1j2rmt2 {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 300px;
+    padding: 4px;
+  }
+
+  .editor-area.svelte-1j2rmt2 {
+    flex: 1;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .graph.svelte-1j2rmt2 {
+    height: 240px;
+  }
+
+  .code.svelte-1j2rmt2 {
+    height: 72%;
+  }
+
+  .code-inner.svelte-1j2rmt2 {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }

@@ -1,0 +1,62 @@
+
+  .sidebar.svelte-10u62kf {
+    width: 300px;
+    background: #2e2e2e;
+    color: white;
+    padding: 10px;
+    font-family: monospace;
+    overflow-y: auto;
+  }
+
+  /* (unused) .hidden {
+    display: none;
+  }*/
+
+  .code-block-sidebar {
+    position: relative;
+    margin: 0em 0em;
+    padding-left: 10px;
+    /*cursor: grab;*/
+    background: #3e3e3e;
+    border: 1px solid #3a3a3a;
+    border-radius: 8px;
+    font-size: 12px;
+  }
+
+  /* (unused) pre {
+    background: transparent;
+    padding: 10px;
+    border-radius: 5px;
+    overflow-x: auto;
+    margin: 0;
+
+
+  }*/
+
+  .copy-btn {
+    position: absolute;
+    top: -12px;
+    right: 4px;
+    background: #444;
+    color: white;
+    border: none;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .replace-btn {
+    position: absolute;
+    top: -12px;
+    right: 70px;
+    background: #444;
+    color: white;
+    border: none;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .replace-btn:hover {
+    background: #ff3350; 
+  }
