@@ -135,7 +135,7 @@ var root_default = asClassComponent(Root);
 //#region .svelte-kit/generated/client-optimized/app.js
 var nodes = [
 	() => __vitePreload(() => import("../nodes/0.C89TZwy1.js"), __vite__mapDeps([0]), import.meta.url),
-	() => __vitePreload(() => import("../nodes/1.C37oTcUK.js"), [], import.meta.url),
+	() => __vitePreload(() => import("../nodes/1.Ds6x8VkR.js"), [], import.meta.url),
 	() => __vitePreload(() => import("../nodes/2.CKd_iZrl.js"), __vite__mapDeps([1,2,3,4,5,6]), import.meta.url),
 	() => __vitePreload(() => import("../nodes/3.CKkG8xPg.js"), [], import.meta.url),
 	() => __vitePreload(() => import("../nodes/4.CTPToKVn.js"), [], import.meta.url),

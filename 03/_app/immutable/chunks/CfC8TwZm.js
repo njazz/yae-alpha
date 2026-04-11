@@ -363,15 +363,15 @@ function set(key, value, stringify = JSON.stringify) {
 //#endregion
 //#region ../node_modules/@sveltejs/kit/src/runtime/app/paths/internal/client.js
 var _globalThis$__sveltek, _globalThis$__sveltek2, _ref, _globalThis$__sveltek3, _globalThis$__sveltek4;
-var base = (_globalThis$__sveltek = (_globalThis$__sveltek2 = globalThis.__sveltekit_1ads8hl) === null || _globalThis$__sveltek2 === void 0 ? void 0 : _globalThis$__sveltek2.base) !== null && _globalThis$__sveltek !== void 0 ? _globalThis$__sveltek : "";
-var assets = (_ref = (_globalThis$__sveltek3 = (_globalThis$__sveltek4 = globalThis.__sveltekit_1ads8hl) === null || _globalThis$__sveltek4 === void 0 ? void 0 : _globalThis$__sveltek4.assets) !== null && _globalThis$__sveltek3 !== void 0 ? _globalThis$__sveltek3 : base) !== null && _ref !== void 0 ? _ref : "";
+var base = (_globalThis$__sveltek = (_globalThis$__sveltek2 = globalThis.__sveltekit_apaqrh) === null || _globalThis$__sveltek2 === void 0 ? void 0 : _globalThis$__sveltek2.base) !== null && _globalThis$__sveltek !== void 0 ? _globalThis$__sveltek : "";
+var assets = (_ref = (_globalThis$__sveltek3 = (_globalThis$__sveltek4 = globalThis.__sveltekit_apaqrh) === null || _globalThis$__sveltek4 === void 0 ? void 0 : _globalThis$__sveltek4.assets) !== null && _globalThis$__sveltek3 !== void 0 ? _globalThis$__sveltek3 : base) !== null && _ref !== void 0 ? _ref : "";
 //#endregion
 //#region ../node_modules/@sveltejs/kit/src/runtime/app/paths/client.js
 /** @import { Asset, RouteId, RouteIdWithSearchOrHash, Pathname, PathnameWithSearchOrHash, ResolvedPathname } from '$app/types' */
 /** @import { ResolveArgs } from './types.js' */
 //#endregion
 //#region \0virtual:__sveltekit/environment
-var version = "1775939760039";
+var version = "1775941324720";
 //#endregion
 //#region ../node_modules/@sveltejs/kit/src/runtime/client/constants.js
 var SNAPSHOT_KEY = "sveltekit:snapshot";
@@ -967,7 +967,7 @@ var query_map = /* @__PURE__ */ new Map();
 */
 async function start(_app, _target, hydrate) {
 	var _app$hooks$init, _app$hooks, _history$state, _history$state2;
-	if (globalThis.__sveltekit_1ads8hl) var _globalThis$__sveltek = globalThis.__sveltekit_1ads8hl.query, _globalThis$__sveltek2 = globalThis.__sveltekit_1ads8hl.prerender;
+	if (globalThis.__sveltekit_apaqrh) var _globalThis$__sveltek = globalThis.__sveltekit_apaqrh.query, _globalThis$__sveltek2 = globalThis.__sveltekit_apaqrh.prerender;
 	if (document.URL !== location.href) location.href = location.href;
 	app = _app;
 	await ((_app$hooks$init = (_app$hooks = _app.hooks).init) === null || _app$hooks$init === void 0 ? void 0 : _app$hooks$init.call(_app$hooks));
