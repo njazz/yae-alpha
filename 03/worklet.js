@@ -21,6 +21,8 @@ class YWorklet extends AudioWorkletProcessor {
     this.engine = null;
     this.ready = false;
 
+    this.simpleState = null;
+
     this._alloced = false;
 
     this._bufferInPtr = 0;
@@ -49,36 +51,42 @@ class YWorklet extends AudioWorkletProcessor {
               this.module._y_engine_eval(this.engine, ptr);
 
               var b =  this.module._y_engine_reload_dsp(this.engine);
+
           }
           // this._initWasm();
           break;
 
-        // case "setSlider":
-        //   if (this.ready) {
-        //     this.module._y_signal_source_float_set(
-        //       msg.payload.ptr,
-        //       msg.payload.value
-        //     );
-        //   }
-        //   break;
+        case "set_slider":
+          
+          if (this.module) {
+            this.module._y_simple_state_set_slider(
+              this.simpleState,
+              msg.payload.index,
+              msg.payload.value
+            );
+            this.port.postMessage({ type: "set_slider_", obj: this.simpleState, index: msg.payload.index, value: msg.payload.value });          
 
-        // case "setToggle":
-        //   if (this.ready) {
-        //     this.module._y_signal_source_float_set(
-        //       msg.payload.ptr,
-        //       msg.payload.value ? 1 : 0
-        //     );
-        //   }
-        //   break;
+          }
+          break;
 
-        // case "setButton":
-        //   if (this.ready) {
-        //     this.module._y_simple_state_set_button(
-        //       this.engine,
-        //       msg.payload.index
-        //     );
-        //   }
-        //   break;
+        case "set_toggle":
+          if (this.ready) {
+            this.module._y_simple_state_set_toggle(
+              this.simpleState,
+              msg.payload.index,
+              msg.payload.value
+            );
+          }
+          break;
+
+        case "set_button":
+          if (this.ready) {
+            this.module._y_simple_state_set_button(
+              this.simpleState,
+              msg.payload.index,
+            );
+          }
+          break;
       }
     };
 
@@ -127,6 +135,9 @@ class YWorklet extends AudioWorkletProcessor {
 
       // TODO
       this.module._y_dsp_prepare(this.dsp, 2, 128, 48000);
+
+      // TODO
+      this.simpleState = this.module._y_engine_get_simple_state(this.engine);
 
       this.ready = true;
 
