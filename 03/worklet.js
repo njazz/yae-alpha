@@ -56,6 +56,21 @@ class YWorklet extends AudioWorkletProcessor {
           // this._initWasm();
           break;
 
+        case "eval_expression":
+          if (msg.payload?.code) {
+          if (!this.module)
+            await this._initWasm();
+
+            let  code = msg.payload?.code;
+              var ptr = this.module.allocateUTF8(code);
+              this.module._y_engine_eval_expression(this.engine, ptr);
+
+              var b =  this.module._y_engine_reload_dsp(this.engine);
+
+          }
+          // this._initWasm();
+          break;
+
         case "set_slider":
           
           if (this.module) {
@@ -176,7 +191,7 @@ class YWorklet extends AudioWorkletProcessor {
     this._alloced = true;
   }
 
-  process(inputs, outputs) {
+  async process(inputs, outputs) {
     if (!this.ready) return true;
 
     const input = inputs[0] || [];
@@ -213,6 +228,10 @@ class YWorklet extends AudioWorkletProcessor {
 
       // fail:
       this.ready = false;
+
+      // reinit once
+      await _initWasm();
+
       return true;
     }
 
