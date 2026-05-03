@@ -30,6 +30,10 @@ class YWorklet extends AudioWorkletProcessor {
     this._bufferIn = null;
     this._bufferOut = null;
 
+    this.initializing = false;
+
+    this.initPromise = null;
+
     this.port.onmessage = async (ev) => {
       const msg = ev.data || {};
 
@@ -52,6 +56,8 @@ class YWorklet extends AudioWorkletProcessor {
 
               var b =  this.module._y_engine_reload_dsp(this.engine);
 
+              this.module._y_dsp_prepare(this.dsp, 2, 128, 48000);
+
           }
           // this._initWasm();
           break;
@@ -66,6 +72,8 @@ class YWorklet extends AudioWorkletProcessor {
               this.module._y_engine_eval_expression(this.engine, ptr);
 
               var b =  this.module._y_engine_reload_dsp(this.engine);
+
+              
 
           }
           // this._initWasm();
@@ -111,16 +119,83 @@ class YWorklet extends AudioWorkletProcessor {
   }
 
   async _initWasm() {
+
     if (this.ready) return;
+    // if (this.ready || this.initializing) return;
 
+    // if (this.initializing) {
+    // // wait until ongoing init finishes
+    // while (!this.ready) {
+    //   await new Promise(r => setTimeout(r, 1));
+    // }
+    // return;
+    // }
+
+    // this.initializing = true;
+
+    // try {
+    //   if (this.loaderUrl) {
+    //     // importScripts(this.loaderUrl);
+    //   }
+
+    //   //
+    //   // const createModule = (await import("./wasm/yae_wasm3.js")).default;
+
+    //   this.module = await createModule({
+    //     locateFile: (path) => {
+    //       if (path.endsWith(".wasm")) {
+    //         return "/wasm/yae_wasm3.wasm";
+    //       }
+    //       return path;
+    //     }
+    //   });
+
+    //   // if (typeof this.YaeModule !== "function") {
+    //   //   this.port.postMessage({
+    //   //     type: "error",
+    //   //     message: "YaeModule not found in worklet scope",
+    //   //   });
+    //   //   return;
+    //   // }
+
+    //   // this.module = await self.YaeModule();
+    //   this.engine = this.module._y_engine_new();
+
+      
+    //   // TEST
+    //   this.module._y_engine_eval(this.engine, this.module.allocateUTF8("#dsp ~0;"));
+    //   var b =  this.module._y_engine_reload_dsp(this.engine);
+
+    //   this.dsp = this.module._y_engine_get_dsp(this.engine);
+
+    //   // TODO
+    //   this.module._y_dsp_prepare(this.dsp, 2, 128, 48000);
+
+    //   // TODO
+    //   this.simpleState = this.module._y_engine_get_simple_state(this.engine);
+
+    //   this.ready = true;
+
+    //   this.port.postMessage({ type: "ready" });
+
+    //   this.port.postMessage({ type: "ready", message: Object.keys(this.module) });
+
+    // } catch (err) {
+    //   this.port.postMessage({
+    //     type: "error",
+    //     message: String(err),
+    //   });
+    // }
+    // finally {
+    //   this.initializing = false;
+    // }
+
+    if (this.initPromise) {
+    return this.initPromise;
+  }
+
+  this.initPromise = (async () => {
     try {
-      if (this.loaderUrl) {
-        // importScripts(this.loaderUrl);
-      }
-
-      //
-      // const createModule = (await import("./wasm/yae_wasm3.js")).default;
-
       this.module = await createModule({
         locateFile: (path) => {
           if (path.endsWith(".wasm")) {
@@ -130,42 +205,35 @@ class YWorklet extends AudioWorkletProcessor {
         }
       });
 
-      // if (typeof this.YaeModule !== "function") {
-      //   this.port.postMessage({
-      //     type: "error",
-      //     message: "YaeModule not found in worklet scope",
-      //   });
-      //   return;
-      // }
-
-      // this.module = await self.YaeModule();
       this.engine = this.module._y_engine_new();
 
-      
-      // TEST
-      this.module._y_engine_eval(this.engine, this.module.allocateUTF8("#dsp ~%;"));
-      var b =  this.module._y_engine_reload_dsp(this.engine);
+      this.module._y_engine_eval(
+        this.engine,
+        this.module.allocateUTF8("#dsp ~0;")
+      );
+
+      this.module._y_engine_reload_dsp(this.engine);
 
       this.dsp = this.module._y_engine_get_dsp(this.engine);
 
-      // TODO
       this.module._y_dsp_prepare(this.dsp, 2, 128, 48000);
 
-      // TODO
       this.simpleState = this.module._y_engine_get_simple_state(this.engine);
 
       this.ready = true;
 
       this.port.postMessage({ type: "ready" });
 
-      this.port.postMessage({ type: "ready", message: Object.keys(this.module) });
-
     } catch (err) {
       this.port.postMessage({
         type: "error",
         message: String(err),
       });
+      throw err;
     }
+  })();
+
+  return this.initPromise;
   }
 
   _ensureBuffers() {
@@ -192,7 +260,10 @@ class YWorklet extends AudioWorkletProcessor {
   }
 
   async process(inputs, outputs) {
-    if (!this.ready) return true;
+    if (!this.ready) {
+      // await this._initWasm();
+      return true;
+    }
 
     const input = inputs[0] || [];
     const output = outputs[0] || [];
@@ -230,7 +301,7 @@ class YWorklet extends AudioWorkletProcessor {
       this.ready = false;
 
       // reinit once
-      await _initWasm();
+      await this._initWasm();
 
       return true;
     }
